@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/09/17 22:44:18 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/09/19 20:31:33 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ pthread_t	*alloc_thread_pool(pthread_t *thread_pool, int n)
 	i = 0;
 	while (i < n)
 	{
-		printf("%p\n", thread_pool);
+		printf("thread %d %p\n", i, thread_pool);
 		thread_pool++;
 		i++;
 	}
@@ -34,22 +34,37 @@ pthread_t	*alloc_thread_pool(pthread_t *thread_pool, int n)
 	return (thread_pool);
 }
 
-void	print_philos(t_all *all, int n)
+t_philo	*alloc_philos(t_philo *philos, int n)
 {
 	t_philo	*ptr;
 	int		i;
 
-	ptr = all->philos;
-	all->philos = ptr;
+	philos = malloc(sizeof(t_philo) * n);
+	if (!philos)
+		return (NULL);
+	ptr = philos;
+	i = 0;
+	while (i < n)
+	{
+		printf("ph %d %p\n", i, philos);
+		philos++;
+		i++;
+	}
+	philos = ptr;
+	printf("ptr philos = %p\n", philos);
+	return (philos);
+}
+
+void	print_philos(t_all *all, int n)
+{
+	int		i;
 	i = 0;
 	while (i < n)
 	{
 		printf("%p\n", all->philos);
-		printf("%lu\n", all->philos[i].thread);
 		all->philos++;
 		i++;
 	}
-	all->philos = ptr;
 }
 
 int	ft_atoi(const char *str)
