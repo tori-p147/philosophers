@@ -6,16 +6,25 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/09/19 20:31:33 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/18 18:04:10 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-pthread_t	*alloc_thread_pool(pthread_t *thread_pool, int n)
+pthread_mutex_t	*alloc_forks(int n)
+{
+	pthread_mutex_t *forks = malloc(sizeof(pthread_mutex_t) * n);
+	if (!forks)
+		return (NULL);
+	return (forks);
+}
+
+pthread_t	*alloc_thread_pool(int n)
 {
 	pthread_t	*ptr;
 	int			i;
+	pthread_t	*thread_pool;
 
 	printf("n = %d\n", n);
 	thread_pool = malloc(sizeof(pthread_t) * n);
@@ -34,37 +43,28 @@ pthread_t	*alloc_thread_pool(pthread_t *thread_pool, int n)
 	return (thread_pool);
 }
 
-t_philo	*alloc_philos(t_philo *philos, int n)
+t_philo	*alloc_philos(int n)
 {
-	t_philo	*ptr;
-	int		i;
-
-	philos = malloc(sizeof(t_philo) * n);
+	printf("philos_count = %d\n", n);
+	t_philo *philos = malloc(sizeof(t_philo) * n);
 	if (!philos)
 		return (NULL);
-	ptr = philos;
-	i = 0;
-	while (i < n)
-	{
-		printf("ph %d %p\n", i, philos);
-		philos++;
-		i++;
-	}
-	philos = ptr;
-	printf("ptr philos = %p\n", philos);
 	return (philos);
 }
 
 void	print_philos(t_all *all, int n)
 {
-	int		i;
+	int	i;
+
 	i = 0;
+	t_philo *ptr = all->philos;
 	while (i < n)
 	{
 		printf("%p\n", all->philos);
 		all->philos++;
 		i++;
 	}
+	all->philos = ptr;
 }
 
 int	ft_atoi(const char *str)
@@ -98,19 +98,18 @@ int	*parse_nums(int ac, char **av, int *args)
 	int	*ptr;
 
 	size = ac - 1;
-	args = malloc(sizeof(int) * size);
+	args = malloc(sizeof(int) * (size + 1));
 	if (!args)
 		return (NULL);
 	ptr = args;
 	i = 0;
 	while (i < size)
 	{
-		printf("%s\n", av[i + 1]);
 		*args = ft_atoi(av[i + 1]);
-		printf("%d\n", *args);
 		args++;
 		i++;
 	}
+	*args = 0;
 	args = ptr;
 	return (args);
 }
