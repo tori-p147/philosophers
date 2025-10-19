@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/18 18:04:10 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/19 16:16:02 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,30 +22,28 @@ pthread_mutex_t	*alloc_forks(int n)
 
 pthread_t	*alloc_thread_pool(int n)
 {
-	pthread_t	*ptr;
-	int			i;
+	// pthread_t	*ptr;
+	// int			i;
 	pthread_t	*thread_pool;
 
-	printf("n = %d\n", n);
 	thread_pool = malloc(sizeof(pthread_t) * n);
 	if (!thread_pool)
 		return (NULL);
-	ptr = thread_pool;
-	i = 0;
-	while (i < n)
-	{
-		printf("thread %d %p\n", i, thread_pool);
-		thread_pool++;
-		i++;
-	}
-	thread_pool = ptr;
-	printf("pool = %p\n", thread_pool);
+	// ptr = thread_pool;
+	// i = 0;
+	// while (i < n)
+	// {
+	// 	printf("thread %d %p\n", i, thread_pool);
+	// 	thread_pool++;
+	// 	i++;
+	// }
+	// thread_pool = ptr;
+	// printf("pool = %p\n", thread_pool);
 	return (thread_pool);
 }
 
 t_philo	*alloc_philos(int n)
 {
-	printf("philos_count = %d\n", n);
 	t_philo *philos = malloc(sizeof(t_philo) * n);
 	if (!philos)
 		return (NULL);
@@ -60,7 +58,7 @@ void	print_philos(t_all *all, int n)
 	t_philo *ptr = all->philos;
 	while (i < n)
 	{
-		printf("%p\n", all->philos);
+		printf("%p", all->philos[i].dead_mtx);
 		all->philos++;
 		i++;
 	}
@@ -112,12 +110,4 @@ int	*parse_nums(int ac, char **av, int *args)
 	*args = 0;
 	args = ptr;
 	return (args);
-}
-
-int	now(void)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }

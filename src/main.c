@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:23 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/18 18:04:45 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/19 15:55:34 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,16 @@ int	*prepare_proccess(int ac, char **av, int *args)
 	if (!validate_input_data(ac, av))
 		return (NULL);
 	args = parse_nums(ac, av, args);
-	printf("%p\n", args);
 	if (!args)
 		return (NULL);
 	return (args);
+}
+
+int main_process(t_all *all, int n)
+{
+	if (!init_thread_pool(all, n))
+		return (0);
+	return (1);
 }
 
 int	main(int ac, char **av)
@@ -34,8 +40,13 @@ int	main(int ac, char **av)
 		args = prepare_proccess(ac, av, args);
 		if (!args)
 			return (1);
-		printf("before init all\n");
 		if (!init_all(&all, args))
+		{
+			free_all(&all, *args);
+			free(args);
+			return (1);
+		}
+		if (!main_process(&all, args[0]))
 		{
 			free_all(&all, *args);
 			free(args);
@@ -43,7 +54,6 @@ int	main(int ac, char **av)
 		}
 		free_all(&all, *args);
 		free(args);
-		printf("args = %p\n", args);
 		return (0);
 	}
 	return (1);

@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/18 17:05:37 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/19 16:48:07 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,10 @@
 # include "pthread.h"
 # include "stdbool.h"
 # include "stdio.h"
-# include "string.h"
 # include "stdlib.h"
+# include "string.h"
 # include "sys/time.h"
+# include <unistd.h>
 
 typedef struct s_philo
 {
@@ -51,20 +52,27 @@ typedef struct s_all
 	t_philo			*philos;
 }					t_all;
 
-pthread_mutex_t	*alloc_forks(int n);
-int	free_all(t_all *all, int n);
-t_philo	*alloc_philos(int n);
-int	ft_atoi(const char *str);
-int	*parse_nums(int ac, char **av, int *args);
-int now(void);
-void print_philos(t_all *all, int n); //delete
+size_t	get_elapsed_time(int start_time);
+void				usleep_sec(int sec);
+size_t				sec_to_millis(int sec);
+size_t				micros_to_millis(int usec);
+void				usleep_sec(int sec);
+int					init_thread_pool(t_all *all, int n);
+int					main_process(t_all *all, int n);
+pthread_mutex_t		*alloc_forks(int n);
+int					free_all(t_all *all, int n);
+t_philo				*alloc_philos(int n);
+int					ft_atoi(const char *str);
+int					*parse_nums(int ac, char **av, int *args);
+size_t				get_millis_time(void);
+void	print_philos(t_all *all, int n); // delete
 // pthread_mutex_t *init_mtxs(pthread_mutex_t *mtxs, t_all *all);
-void free_philos(t_philo *philos, int n);
-pthread_t * free_threads(pthread_t *threads, int n);
-pthread_t *alloc_thread_pool(int n);
-void *do_action(void *arg);
-int init_philo(t_philo *philo, t_all *all, int *args);
-int				init_all(t_all *all, int *args);
+void				free_philos(t_philo *philos, int n);
+pthread_t			*free_threads(pthread_t *threads, int n);
+pthread_t			*alloc_thread_pool(int n);
+void				*do_action(void *arg);
+int					init_philo(t_philo *philo, t_all *all, int *args);
+int					init_all(t_all *all, int *args);
 int					ft_isdigit(unsigned long c);
 long				ft_atoi_long(const char *str, bool *error);
 int					validate_input_data(int ac, char **av);
