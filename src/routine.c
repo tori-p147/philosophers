@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/20 22:32:18 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/20 23:18:22 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,46 +17,35 @@ void	print_message(t_philo *philo, char *str)
 	printf("%lu %d %s\n", get_elapsed_time(philo->start_time), philo->id, str);
 }
 
-int	check_can_eat(t_philo *philo)
+int	do_eat(t_philo *philo)
 {
-	int	is_llocked;
-	int	is_rlocked;
-
-	is_llocked = 0;
-	is_rlocked = 0;
-	is_llocked = pthread_mutex_lock(philo->lfork_mtx);
-	is_rlocked = pthread_mutex_lock(philo->rfork_mtx);
-	if (is_llocked && is_rlocked)
-		return (0);
-	else if (is_llocked)
+	int left = philo->id - 1;
+    int right = (philo->id) % philo->philos_count;
+	
+	if (philo->id % 2 == 0)
 	{
-		pthread_mutex_unlock(philo->rfork_mtx);
-		return (0);
+		pthread_mutex_lock(&philo->all->forks[left]);
+		print_message(philo, "has taken a fork");
+		pthread_mutex_lock(&philo->all->forks[right]);
+		print_message(philo, "is eating");
 	}
-	else if (is_rlocked)
+	else
 	{
-		pthread_mutex_unlock(philo->lfork_mtx);
-		return (0);
+		pthread_mutex_lock(&philo->all->forks[right]);
+		print_message(philo, "has taken a fork");
+		pthread_mutex_lock(&philo->all->forks[left]);
+		print_message(philo, "is eating");
 	}
-	return (1);
-}
-
-void	do_eat(t_philo *philo)
-{
-	printf("%d: trying to eat\n", philo->id);
-	print_message(philo, "has taken a fork");
-	print_message(philo, "is eating");
-	printf("%zu eating\n", philo->eat_time);
-	usleep(philo->eat_time * 1000);
-	pthread_mutex_unlock(philo->lfork_mtx);
-	pthread_mutex_unlock(philo->rfork_mtx);
 	// philo->meal_eaten++;
 	// philo->meal_stock--;
+	printf("%zu eating\n", philo->eat_time);
+	usleep(philo->eat_time * 1000);
 	pthread_mutex_lock(philo->meal_mtx);
 	printf("%d: locked meal_mtx\n", philo->id);
 	philo->last_meal_time = get_elapsed_time(philo->start_time);
 	pthread_mutex_unlock(philo->meal_mtx);
 	printf("%d: unlocked meal_mtx\n", philo->id);
+	return (1);
 }
 
 void	*do_monitoring(void *arg)
@@ -126,14 +115,10 @@ void	*do_action(void *arg)
 			philo->die_time = get_elapsed_time(philo->start_time);
 			print_message(philo, "died");
 			philo->all->dead_flag = 1;
-		}
-		else if (check_can_eat(philo))
-		{
-			do_eat(philo);
-			print_message(philo, "is sleeping");
-			usleep(philo->sleep_time * 1000);
+			break;
 		}
 		
+		do_eat(philo);
 		print_message(philo, "is thinking");
 		// printf("job thread is %ld \n", philo->thread);
 		// if (philo->dead_mtx)
