@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/19 16:16:02 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/20 21:45:25 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ pthread_t	*alloc_thread_pool(int n)
 	// int			i;
 	pthread_t	*thread_pool;
 
-	thread_pool = malloc(sizeof(pthread_t) * n);
+	thread_pool = malloc(sizeof(pthread_t) * (n + 1));
 	if (!thread_pool)
 		return (NULL);
 	// ptr = thread_pool;
@@ -58,8 +58,9 @@ void	print_philos(t_all *all, int n)
 	t_philo *ptr = all->philos;
 	while (i < n)
 	{
-		printf("%p", all->philos[i].dead_mtx);
-		all->philos++;
+		printf("id = %d\n", all->philos[i].id);
+		printf("lfork = %p\n", all->philos[i].lfork_mtx);
+		printf("rfork = %p\n", all->philos[i].rfork_mtx);
 		i++;
 	}
 	all->philos = ptr;

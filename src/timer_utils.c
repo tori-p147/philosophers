@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/19 16:42:05 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/19 21:10:13 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ size_t	micros_to_millis(int usec)
 	return (usec / 1000);
 }
 
-size_t	get_elapsed_time(int start_time)
+size_t	get_elapsed_time(size_t start_time)
 {
 	return (get_millis_time() - start_time);
 }
