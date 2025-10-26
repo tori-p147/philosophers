@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:23 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/19 15:55:34 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/26 17:03:27 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ int	*prepare_proccess(int ac, char **av, int *args)
 int main_process(t_all *all, int n)
 {
 	if (!init_thread_pool(all, n))
-		return (0);
-	return (1);
+		return (1);
+	return (0);
 }
 
 int	main(int ac, char **av)

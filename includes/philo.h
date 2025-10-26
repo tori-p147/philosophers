@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/20 22:45:33 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:44:27 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ typedef struct s_philo
 {
 	int					id;
 	pthread_t			thread;
+	size_t				start_time;
+	bool				is_eating;
 	int					meal_eaten;
 	int					philos_count;
 	size_t				die_time;
@@ -36,19 +38,15 @@ typedef struct s_philo
 	size_t				sleep_time;
 	int					meal_stock;
 	size_t				think_time;
-	size_t				start_time;
 	pthread_mutex_t		*lfork_mtx;
 	pthread_mutex_t		*rfork_mtx;
-	pthread_mutex_t		*meal_mtx;
-	pthread_mutex_t		*dead_mtx;
-	pthread_mutex_t		*write_mtx;
 	t_all				*all;
 }						t_philo;
 
 typedef struct s_all
 {
 	int					philos_count;
-	int					dead_flag;
+	bool				dead_flag;
 	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
@@ -57,6 +55,8 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
+int						check_is_die(t_philo *philo);
+void					write_die_time(t_philo *philo);
 size_t					get_elapsed_time(size_t start_time);
 void					usleep_sec(int sec);
 size_t					sec_to_millis(int sec);

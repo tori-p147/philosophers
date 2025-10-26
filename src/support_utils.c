@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/20 21:45:25 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/26 14:48:26 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,6 @@ void	print_philos(t_all *all, int n)
 	while (i < n)
 	{
 		printf("id = %d\n", all->philos[i].id);
-		printf("lfork = %p\n", all->philos[i].lfork_mtx);
-		printf("rfork = %p\n", all->philos[i].rfork_mtx);
 		i++;
 	}
 	all->philos = ptr;

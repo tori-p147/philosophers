@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/20 22:27:34 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:44:35 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ detach all created threads when failed create thread
 */
 int	try_create_thread(t_all *all, int i, int n, void *(*routine)(void *))
 {
-	all->philos[i].start_time = get_millis_time();
-	// printf("phil id %d\n", all->philos[i].id);
+	if (routine == do_action)
+		all->philos[i].start_time = get_millis_time();
 	if (pthread_create(&all->philos[i].thread, NULL, routine,
-			(void *)(&all->philos[i])) != 0)
+			&all->philos[i]) != 0)
 	{
 		printf("Create thread error");
 		printf("n = %d\n", n);
@@ -36,6 +36,7 @@ int	init_thread_pool(t_all *all, int n)
 	int	i;
 	i = 0;
 	// print_philos(all, n);
+	// all->start_time = get_millis_time();
 	while (i < n)
 	{
 		if (!try_create_thread(all, i, n, do_action))
@@ -50,13 +51,13 @@ int	init_thread_pool(t_all *all, int n)
 		pthread_join(all->philos[i].thread, NULL);
 		i++;
 	}
+	// pthread_join(all->philos[i].thread, NULL);
 	return (1);
 }
 
 int	init_philo(t_philo *philo, t_all *all, int *args)
 {
-	// philo->thread = pthread_create(&all->thread_pool[philo->id], NULL,
-	// 		do_action, NULL);
+	philo->is_eating = false;
 	philo->philos_count = all->philos_count;
 	philo->die_time = args[1];
 	philo->eat_time = args[2];
@@ -68,13 +69,10 @@ int	init_philo(t_philo *philo, t_all *all, int *args)
 		philo->meal_stock = args[4];
 	// printf("init philo meal_stock %d\n", philo->meal_stock);
 	philo->think_time = 0;
-	philo->start_time = 0;
 	philo->lfork_mtx = &all->forks[philo->id - 1];
 	philo->rfork_mtx = &all->forks[(philo->id) % all->philos_count];
-	philo->dead_mtx = &all->dead_mtx;
-	philo->meal_mtx = &all->meal_mtx;
-	philo->write_mtx = &all->write_mtx;
 	philo->all = all;
+	philo->start_time = 0;
 	return (1);
 }
 
@@ -105,6 +103,7 @@ int	init_all(t_all *all, int *args)
 	pthread_mutex_init(&all->write_mtx, NULL);
 	i = 1;
 	ptr = all->philos;
+	all->dead_flag = false;
 	while (i <= all->philos_count)
 	{
 		all->philos->id = i;
@@ -113,7 +112,7 @@ int	init_all(t_all *all, int *args)
 		i++;
 	}
 	all->philos = ptr;
-	all->dead_flag = false;
-	// print_philos(all, philos_count);
+	
+	// print_philos(all, all->philos_count);
 	return (1);
 }
