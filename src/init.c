@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/26 18:44:35 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/08 14:54:33 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ int	init_philo(t_philo *philo, t_all *all, int *args)
 		philo->meal_stock = args[4];
 	// printf("init philo meal_stock %d\n", philo->meal_stock);
 	philo->think_time = 0;
+	pthread_mutex_init(&philo->meal_mtx, NULL);
 	philo->lfork_mtx = &all->forks[philo->id - 1];
 	philo->rfork_mtx = &all->forks[(philo->id) % all->philos_count];
 	philo->all = all;
@@ -98,7 +99,7 @@ int	init_all(t_all *all, int *args)
 	all->philos = alloc_philos(all->philos_count);
 	if (!all->philos)
 		return (0);
-	pthread_mutex_init(&all->meal_mtx, NULL);
+	// pthread_mutex_init(&all->meal_mtx, NULL);
 	pthread_mutex_init(&all->dead_mtx, NULL);
 	pthread_mutex_init(&all->write_mtx, NULL);
 	i = 1;

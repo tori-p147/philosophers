@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/26 18:44:27 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/08 17:36:01 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "stdlib.h"
 # include "string.h"
 # include "sys/time.h"
+# include <stdint.h>
 # include <unistd.h>
 
 typedef struct s_all	t_all;
@@ -28,16 +29,17 @@ typedef struct s_philo
 {
 	int					id;
 	pthread_t			thread;
-	size_t				start_time;
+	uint64_t			start_time;
 	bool				is_eating;
 	int					meal_eaten;
 	int					philos_count;
-	size_t				die_time;
-	size_t				eat_time;
-	size_t				last_meal_time;
-	size_t				sleep_time;
+	uint64_t			die_time;
+	uint64_t			eat_time;
+	uint64_t			last_meal_time;
+	uint64_t			sleep_time;
 	int					meal_stock;
-	size_t				think_time;
+	uint64_t			think_time;
+	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		*lfork_mtx;
 	pthread_mutex_t		*rfork_mtx;
 	t_all				*all;
@@ -47,7 +49,7 @@ typedef struct s_all
 {
 	int					philos_count;
 	bool				dead_flag;
-	pthread_mutex_t		meal_mtx;
+	// pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
 	pthread_t			*thread_pool;
@@ -57,11 +59,10 @@ typedef struct s_all
 
 int						check_is_die(t_philo *philo);
 void					write_die_time(t_philo *philo);
-size_t					get_elapsed_time(size_t start_time);
-void					usleep_sec(int sec);
-size_t					sec_to_millis(int sec);
-size_t					micros_to_millis(int usec);
-void					usleep_sec(int sec);
+uint64_t				get_elapsed_time(uint64_t start_time);
+uint64_t				sec_to_millis(uint64_t sec);
+uint64_t				micros_to_millis(uint64_t usec);
+void					ft_usleep(uint64_t milliseconds);
 int						init_thread_pool(t_all *all, int n);
 int						main_process(t_all *all, int n);
 pthread_mutex_t			*alloc_forks(int n);
@@ -69,7 +70,7 @@ int						free_all(t_all *all, int n);
 t_philo					*alloc_philos(int n);
 int						ft_atoi(const char *str);
 int						*parse_nums(int ac, char **av, int *args);
-size_t					get_millis_time(void);
+uint64_t				get_millis_time(void);
 void	print_philos(t_all *all, int n); // delete
 // pthread_mutex_t *init_mtxs(pthread_mutex_t *mtxs, t_all *all);
 void					free_philos(t_philo *philos, int n);

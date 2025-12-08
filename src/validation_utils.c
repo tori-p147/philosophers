@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation_utils.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:12:59 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/26 14:07:14 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/08 15:24:59 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	validate_input_data(int ac, char **av)
 	{
 		is_not_integer = false;
 		num = ft_atoi_long(av[i], &is_not_integer);
-		if (is_not_integer || INT_MIN > num || num > INT_MAX)
+		if (is_not_integer || 0 >= num || num > INT_MAX)
 			return (0);
 		if (num == 0 && ac == 6 && i < ac - 1)
 			return (0);

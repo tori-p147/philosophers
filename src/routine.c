@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/26 18:50:35 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/08 17:43:06 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 void	print_message(t_philo *philo, char *str)
 {
+	if (philo->all->dead_flag)
+		return;
 	pthread_mutex_lock(&philo->all->write_mtx);
-	printf("%lu %d %s\n", get_elapsed_time(philo->start_time), philo->id,
-		str);
+	printf("%lu %d %s\n", get_elapsed_time(philo->start_time), philo->id, str);
 	pthread_mutex_unlock(&philo->all->write_mtx);
 }
 
@@ -55,14 +56,16 @@ void	do_eat(t_philo *philo)
 		print_message(philo, "has taken a fork 2");
 		print_message(philo, "is eating");
 	}
+	pthread_mutex_lock(&philo->meal_mtx);
 	philo->is_eating = true;
-	pthread_mutex_lock(&philo->all->meal_mtx);
 	philo->last_meal_time = get_millis_time();
-	pthread_mutex_unlock(&philo->all->meal_mtx);
+	pthread_mutex_unlock(&philo->meal_mtx);
 	usleep(philo->eat_time * 1000);
 	pthread_mutex_unlock(first);
 	pthread_mutex_unlock(second);
+	pthread_mutex_lock(&philo->meal_mtx);
 	philo->is_eating = false;
+	pthread_mutex_unlock(&philo->meal_mtx);
 	print_message(philo, "is sleeping");
 	usleep(philo->sleep_time * 1000);
 }
@@ -74,18 +77,13 @@ void	*do_monitoring(void *arg)
 	// pthread_t	*ptr;
 	// int			i;
 	all = (t_all *)arg;
-	int n = all->philos_count + 1; // FIXME obj fields
 	while (1)
 	{
 		pthread_mutex_lock(&all->dead_mtx);
 		printf("monitor working %d\n", all->dead_flag);
-		
 		printf("yes\n");
 		if (all->dead_flag >= 1)
 		{
-			printf("detaching... %d\n", all->dead_flag);
-			while (n--)
-				pthread_detach(all->philos[n].thread);
 			pthread_mutex_unlock(&all->dead_mtx);
 			return (NULL);
 		}
@@ -101,6 +99,7 @@ int	check_is_die(t_philo *philo)
 	size_t	now;
 	size_t	time_since_last_meal;
 
+	pthread_mutex_lock(&philo->meal_mtx);
 	now = get_millis_time();
 	if (philo->last_meal_time == 0)
 		time_since_last_meal = now - philo->start_time;
@@ -110,6 +109,7 @@ int	check_is_die(t_philo *philo)
 	}
 	printf("flag = %d th = %d %zu > %zu\n", philo->all->dead_flag, philo->id,
 		time_since_last_meal, philo->die_time);
+	pthread_mutex_unlock(&philo->meal_mtx);
 	if (time_since_last_meal > philo->die_time)
 		return (1);
 	return (0);
@@ -127,11 +127,9 @@ void	write_die_time(t_philo *philo)
 
 int	check_can_eat(t_philo *philo)
 {
-	bool	neighbours_eating;
-	int		left_neighbor_id;
-	int		right_neighbor_id;
+	int	left_neighbor_id;
+	int	right_neighbor_id;
 
-	neighbours_eating = false;
 	left_neighbor_id = philo->id - 1;
 	right_neighbor_id = philo->id + 1;
 	if (philo->id == philo->philos_count)

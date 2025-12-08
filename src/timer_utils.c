@@ -3,36 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   timer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/22 21:35:48 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/08 17:37:32 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	usleep_sec(int sec)
-{
-	usleep(sec_to_millis(sec) * 1000);
-}
-
-size_t	sec_to_millis(int sec)
+uint64_t	sec_to_millis(uint64_t sec)
 {
 	return (sec * 1000);
 }
 
-size_t	micros_to_millis(int usec)
+void	ft_usleep(uint64_t milliseconds)
+{
+	uint64_t	start;
+
+	start = get_millis_time();
+	while ((get_millis_time() - start) < milliseconds)
+		usleep(500);
+}
+
+uint64_t	micros_to_millis(uint64_t usec)
 {
 	return (usec / 1000);
 }
 
-size_t	get_elapsed_time(size_t start_time)
+uint64_t	get_elapsed_time(uint64_t start_time)
 {
 	return (get_millis_time() - start_time);
 }
 
-size_t	get_millis_time(void)
+uint64_t	get_millis_time(void)
 {
 	struct timeval	tv;
 
