@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/08 17:36:01 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 15:21:36 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ typedef struct s_philo
 {
 	int					id;
 	pthread_t			thread;
-	uint64_t			start_time;
 	bool				is_eating;
 	int					meal_eaten;
 	int					philos_count;
@@ -49,10 +48,12 @@ typedef struct s_all
 {
 	int					philos_count;
 	bool				dead_flag;
+	uint64_t			start_time;
 	// pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
-	pthread_t			*thread_pool;
+	pthread_t			monitor;
+	pthread_t			*ph_thread_pool;
 	pthread_mutex_t		*forks;
 	t_philo				*philos;
 }						t_all;
@@ -63,7 +64,7 @@ uint64_t				get_elapsed_time(uint64_t start_time);
 uint64_t				sec_to_millis(uint64_t sec);
 uint64_t				micros_to_millis(uint64_t usec);
 void					ft_usleep(uint64_t milliseconds);
-int						init_thread_pool(t_all *all, int n);
+int						init_threads(t_all *all, int n);
 int						main_process(t_all *all, int n);
 pthread_mutex_t			*alloc_forks(int n);
 int						free_all(t_all *all, int n);
@@ -75,7 +76,7 @@ void	print_philos(t_all *all, int n); // delete
 // pthread_mutex_t *init_mtxs(pthread_mutex_t *mtxs, t_all *all);
 void					free_philos(t_philo *philos, int n);
 pthread_t				*free_threads(pthread_t *threads, int n);
-pthread_t				*alloc_thread_pool(int n);
+pthread_t				*alloc_threads(int n);
 void					*do_monitoring(void *arg);
 void					*do_action(void *arg);
 int						init_philo(t_philo *philo, t_all *all, int *args);

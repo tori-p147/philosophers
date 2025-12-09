@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/08 17:43:06 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 16:29:11 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	print_message(t_philo *philo, char *str)
 	if (philo->all->dead_flag)
 		return;
 	pthread_mutex_lock(&philo->all->write_mtx);
-	printf("%lu %d %s\n", get_elapsed_time(philo->start_time), philo->id, str);
+	printf("%lu %d %s\n", get_elapsed_time(philo->all->start_time), philo->id, str);
 	pthread_mutex_unlock(&philo->all->write_mtx);
 }
 
@@ -36,7 +36,6 @@ void	do_eat(t_philo *philo)
 
 	if (philo->id % 2 == 0)
 	{
-		// usleep(100);
 		first = philo->lfork_mtx;
 		second = philo->rfork_mtx;
 		pthread_mutex_lock(first);
@@ -47,7 +46,6 @@ void	do_eat(t_philo *philo)
 	}
 	else
 	{
-		// usleep(100);
 		first = philo->rfork_mtx;
 		second = philo->lfork_mtx;
 		pthread_mutex_lock(first);
@@ -60,14 +58,14 @@ void	do_eat(t_philo *philo)
 	philo->is_eating = true;
 	philo->last_meal_time = get_millis_time();
 	pthread_mutex_unlock(&philo->meal_mtx);
-	usleep(philo->eat_time * 1000);
+	ft_usleep(philo->eat_time);
 	pthread_mutex_unlock(first);
 	pthread_mutex_unlock(second);
 	pthread_mutex_lock(&philo->meal_mtx);
 	philo->is_eating = false;
 	pthread_mutex_unlock(&philo->meal_mtx);
 	print_message(philo, "is sleeping");
-	usleep(philo->sleep_time * 1000);
+	ft_usleep(philo->sleep_time);
 }
 
 void	*do_monitoring(void *arg)
@@ -80,8 +78,6 @@ void	*do_monitoring(void *arg)
 	while (1)
 	{
 		pthread_mutex_lock(&all->dead_mtx);
-		printf("monitor working %d\n", all->dead_flag);
-		printf("yes\n");
 		if (all->dead_flag >= 1)
 		{
 			pthread_mutex_unlock(&all->dead_mtx);
@@ -101,12 +97,7 @@ int	check_is_die(t_philo *philo)
 
 	pthread_mutex_lock(&philo->meal_mtx);
 	now = get_millis_time();
-	if (philo->last_meal_time == 0)
-		time_since_last_meal = now - philo->start_time;
-	else
-	{
-		time_since_last_meal = now - philo->last_meal_time;
-	}
+	time_since_last_meal = now - philo->last_meal_time;
 	printf("flag = %d th = %d %zu > %zu\n", philo->all->dead_flag, philo->id,
 		time_since_last_meal, philo->die_time);
 	pthread_mutex_unlock(&philo->meal_mtx);

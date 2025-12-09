@@ -6,52 +6,60 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/08 14:54:33 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 16:07:32 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-/*
-detach all created threads when failed create thread
-*/
-int	try_create_thread(t_all *all, int i, int n, void *(*routine)(void *))
-{
-	if (routine == do_action)
-		all->philos[i].start_time = get_millis_time();
-	if (pthread_create(&all->philos[i].thread, NULL, routine,
-			&all->philos[i]) != 0)
-	{
-		printf("Create thread error");
-		printf("n = %d\n", n);
-		while (n--)
-			pthread_detach(all->philos[n].thread);
-		return (0);
-	}
-	return (1);
-}
-
-int	init_thread_pool(t_all *all, int n)
+int	init_threads(t_all *all, int n)
 {
 	int	i;
+	// int	j;
+
 	i = 0;
+	int j = 0;
 	// print_philos(all, n);
-	// all->start_time = get_millis_time();
+	uint64_t start_time = get_millis_time();
+	all->start_time = start_time;
 	while (i < n)
 	{
-		if (!try_create_thread(all, i, n, do_action))
+		all->philos[i].last_meal_time = all->start_time;
+		if (pthread_create(&all->philos[i].thread, NULL, do_action,
+				&all->philos[i]) != 0)
+		{
+			while (j < i)
+			{
+				pthread_join(all->philos[j].thread, NULL);
+				j++;
+			}
 			return (0);
+		}
+		printf("created philo %d tid=%lu\n", i, (unsigned long)all->philos[i].thread);
 		i++;
 	}
-	if (!try_create_thread(all, i, n, do_monitoring))
-		return (0);
-	i = 0;
-	while (i <= n)
+	if (pthread_create(&all->monitor, NULL, do_monitoring,
+			all) != 0)
 	{
+		j = 0;
+		while (j < i)
+		{
+			pthread_join(all->philos[j].thread, NULL);
+			j++;
+		}
+		return (0);
+	}
+	i = 0;
+	while (i < n)
+	{
+		printf("joining philo %d tid=%lu\n", i, (unsigned long)all->philos[i].thread);
 		pthread_join(all->philos[i].thread, NULL);
 		i++;
 	}
-	// pthread_join(all->philos[i].thread, NULL);
+	
+	printf("joining monitor tid=%lu\n", (unsigned long)all->monitor);
+	pthread_join(all->monitor, NULL);
+	printf("threads was finished");
 	return (1);
 }
 
@@ -61,7 +69,7 @@ int	init_philo(t_philo *philo, t_all *all, int *args)
 	philo->philos_count = all->philos_count;
 	philo->die_time = args[1];
 	philo->eat_time = args[2];
-	philo->last_meal_time = 0;
+	philo->last_meal_time = all->start_time;
 	philo->sleep_time = args[3];
 	if (!args[4])
 		philo->meal_stock = 0;
@@ -73,7 +81,6 @@ int	init_philo(t_philo *philo, t_all *all, int *args)
 	philo->lfork_mtx = &all->forks[philo->id - 1];
 	philo->rfork_mtx = &all->forks[(philo->id) % all->philos_count];
 	philo->all = all;
-	philo->start_time = 0;
 	return (1);
 }
 
@@ -85,8 +92,8 @@ int	init_all(t_all *all, int *args)
 
 	i = 0;
 	all->philos_count = args[0];
-	all->thread_pool = alloc_thread_pool(all->philos_count);
-	if (!all->thread_pool)
+	all->ph_thread_pool = alloc_threads(all->philos_count);
+	if (!all->ph_thread_pool)
 		return (0);
 	all->forks = alloc_forks(all->philos_count);
 	if (!all->forks)
@@ -105,6 +112,7 @@ int	init_all(t_all *all, int *args)
 	i = 1;
 	ptr = all->philos;
 	all->dead_flag = false;
+	all->start_time = 0;
 	while (i <= all->philos_count)
 	{
 		all->philos->id = i;
@@ -113,7 +121,6 @@ int	init_all(t_all *all, int *args)
 		i++;
 	}
 	all->philos = ptr;
-	
 	// print_philos(all, all->philos_count);
 	return (1);
 }

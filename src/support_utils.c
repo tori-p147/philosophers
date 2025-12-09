@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   support_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/10/26 14:48:26 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 15:05:23 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@ pthread_mutex_t	*alloc_forks(int n)
 	return (forks);
 }
 
-pthread_t	*alloc_thread_pool(int n)
+pthread_t	*alloc_threads(int n)
 {
 	// pthread_t	*ptr;
 	// int			i;
-	pthread_t	*thread_pool;
+	pthread_t	*threads;
 
-	thread_pool = malloc(sizeof(pthread_t) * (n + 1));
-	if (!thread_pool)
+	threads = malloc(sizeof(pthread_t) * (n));
+	if (!threads)
 		return (NULL);
 	// ptr = thread_pool;
 	// i = 0;
@@ -39,7 +39,7 @@ pthread_t	*alloc_thread_pool(int n)
 	// }
 	// thread_pool = ptr;
 	// printf("pool = %p\n", thread_pool);
-	return (thread_pool);
+	return (threads);
 }
 
 t_philo	*alloc_philos(int n)
