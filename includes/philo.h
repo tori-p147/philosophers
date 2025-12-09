@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 16:44:07 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 20:17:13 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ typedef struct s_philo
 	uint64_t			sleep_time;
 	int					meal_stock;
 	uint64_t			think_time;
-	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		*lfork_mtx;
 	pthread_mutex_t		*rfork_mtx;
 	t_all				*all;
@@ -48,7 +47,9 @@ typedef struct s_all
 {
 	int					philos_count;
 	bool				dead_flag;
+	bool				goal_flag;
 	uint64_t			start_time;
+	pthread_mutex_t		goal_mtx;
 	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
@@ -58,6 +59,13 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
+int						check_meals_goal(t_philo *philo);
+void					print_message(t_philo *philo, char *str);
+int						check_can_eat(t_philo *philo);
+void					do_sleep(t_philo *philo);
+void					do_think(t_philo *philo);
+int						do_eat(t_philo *philo);
+void					one_philo_case(t_philo *philo);
 int						check_is_die(t_philo *philo);
 void					write_die_time(t_philo *philo);
 uint64_t				get_elapsed_time(uint64_t start_time);

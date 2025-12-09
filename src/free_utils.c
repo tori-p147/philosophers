@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 20:33:04 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 15:13:34 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 20:16:46 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	free_all(t_all *all, int n)
 {
 	int	i;
 
-	// pthread_mutex_destroy(&all->meal_mtx);
+	pthread_mutex_destroy(&all->meal_mtx);
 	pthread_mutex_destroy(&all->dead_mtx);
 	pthread_mutex_destroy(&all->write_mtx);
 	free(all->ph_thread_pool);
@@ -28,8 +28,6 @@ int	free_all(t_all *all, int n)
 		free(all->forks);
 	}
 	i = n;
-	while (i--)
-		pthread_mutex_destroy(&all->philos->meal_mtx);
 	free(all->philos);
 	return (1);
 }

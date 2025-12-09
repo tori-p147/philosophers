@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 16:44:25 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 20:07:43 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ int	init_all(t_all *all, int *args)
 	i = 1;
 	ptr = all->philos;
 	all->dead_flag = false;
+	all->goal_flag = false;
 	all->start_time = 0;
 	while (i <= all->philos_count)
 	{

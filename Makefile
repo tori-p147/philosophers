@@ -16,7 +16,8 @@ SRC_FILES = main.c \
 		routine.c \
 		free_utils.c \
 		support_utils.c \
-		time_utils.c
+		time_utils.c \
+		routine_utils.c
 
 SOURCES = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
