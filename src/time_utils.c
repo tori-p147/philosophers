@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   timer_utils.c                                      :+:      :+:    :+:   */
+/*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 14:42:05 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 17:10:06 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,13 @@ void	ft_usleep(uint64_t milliseconds)
 	uint64_t	start;
 
 	start = get_millis_time();
-	while ((get_millis_time() - start) < milliseconds)
-		usleep(500);
+	while (1)
+	{
+		if ((get_millis_time() - start) < milliseconds)
+			usleep(1000);
+		else
+			break ;
+	}
 }
 
 uint64_t	micros_to_millis(uint64_t usec)

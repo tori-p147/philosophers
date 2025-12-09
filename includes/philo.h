@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 15:21:36 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 16:44:07 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ typedef struct s_all
 	int					philos_count;
 	bool				dead_flag;
 	uint64_t			start_time;
-	// pthread_mutex_t		meal_mtx;
+	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
 	pthread_t			monitor;
@@ -64,7 +64,7 @@ uint64_t				get_elapsed_time(uint64_t start_time);
 uint64_t				sec_to_millis(uint64_t sec);
 uint64_t				micros_to_millis(uint64_t usec);
 void					ft_usleep(uint64_t milliseconds);
-int						init_threads(t_all *all, int n);
+int						run_threads(t_all *all, int n);
 int						main_process(t_all *all, int n);
 pthread_mutex_t			*alloc_forks(int n);
 int						free_all(t_all *all, int n);

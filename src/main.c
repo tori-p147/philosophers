@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:23 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 15:11:15 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 16:43:26 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	*prepare_proccess(int ac, char **av, int *args)
 
 int main_process(t_all *all, int n)
 {
-	if (!init_threads(all, n))
+	if (!run_threads(all, n))
 		return (1);
 	return (0);
 }

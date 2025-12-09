@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 16:29:11 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/09 17:28:23 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,16 +54,16 @@ void	do_eat(t_philo *philo)
 		print_message(philo, "has taken a fork 2");
 		print_message(philo, "is eating");
 	}
-	pthread_mutex_lock(&philo->meal_mtx);
+	pthread_mutex_lock(&philo->all->meal_mtx);
 	philo->is_eating = true;
 	philo->last_meal_time = get_millis_time();
-	pthread_mutex_unlock(&philo->meal_mtx);
+	pthread_mutex_unlock(&philo->all->meal_mtx);
 	ft_usleep(philo->eat_time);
 	pthread_mutex_unlock(first);
 	pthread_mutex_unlock(second);
-	pthread_mutex_lock(&philo->meal_mtx);
+	pthread_mutex_lock(&philo->all->meal_mtx);
 	philo->is_eating = false;
-	pthread_mutex_unlock(&philo->meal_mtx);
+	pthread_mutex_unlock(&philo->all->meal_mtx);
 	print_message(philo, "is sleeping");
 	ft_usleep(philo->sleep_time);
 }
@@ -95,12 +95,12 @@ int	check_is_die(t_philo *philo)
 	size_t	now;
 	size_t	time_since_last_meal;
 
-	pthread_mutex_lock(&philo->meal_mtx);
+	pthread_mutex_lock(&philo->all->meal_mtx);
 	now = get_millis_time();
 	time_since_last_meal = now - philo->last_meal_time;
-	printf("flag = %d th = %d %zu > %zu\n", philo->all->dead_flag, philo->id,
-		time_since_last_meal, philo->die_time);
-	pthread_mutex_unlock(&philo->meal_mtx);
+	// printf("flag = %d th = %d %zu > %zu\n", philo->all->dead_flag, philo->id,
+	// 	time_since_last_meal, philo->die_time);
+	pthread_mutex_unlock(&philo->all->meal_mtx);
 	if (time_since_last_meal > philo->die_time)
 		return (1);
 	return (0);
@@ -153,12 +153,9 @@ void	*do_action(void *arg)
 			return (NULL);
 		}
 		if (check_can_eat(philo))
-		{
 			do_eat(philo);
-			print_message(philo, "is thinking");
-		}
-		else
-			print_message(philo, "is thinking");
+		print_message(philo, "is thinking");
+		ft_usleep(10);
 		// printf("job thread is %ld \n", philo->thread);
 		// if (philo->dead_mtx)
 		// {
