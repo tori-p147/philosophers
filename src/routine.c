@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 20:32:37 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/10 17:26:48 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	print_message(t_philo *philo, char *str)
 	if (philo->all->dead_flag)
 		return ;
 	pthread_mutex_lock(&philo->all->write_mtx);
-	printf("%lu %d %s\n", get_elapsed_time(philo->all->start_time), philo->id,
+	printf("%lu %d %s\n", get_elapsed_time(philo->all->time_created), philo->id,
 		str);
 	pthread_mutex_unlock(&philo->all->write_mtx);
 }
@@ -25,17 +25,38 @@ void	print_message(t_philo *philo, char *str)
 void	*do_monitoring(void *arg)
 {
 	t_all	*all;
+	int		finished_ph_counter;
+	int		i;
 
+	finished_ph_counter = 0;
 	all = (t_all *)arg;
 	while (1)
 	{
 		pthread_mutex_lock(&all->dead_mtx);
-		if (all->dead_flag == 1)
+		if (all->dead_flag)
 		{
 			pthread_mutex_unlock(&all->dead_mtx);
 			return (NULL);
 		}
 		pthread_mutex_unlock(&all->dead_mtx);
+		i = 0;
+		pthread_mutex_lock(&all->meal_mtx);
+		while (i < all->meal_stock)
+		{
+			if (all->philos[i].state == FINISHED)
+			{
+				finished_ph_counter++;
+				i++;
+			}
+			pthread_mutex_unlock(&all->meal_mtx);
+			if (finished_ph_counter == all->philos_count)
+			{
+				printf("goal!! %d = %d\n", all->philos_count,
+					finished_ph_counter);
+				return (NULL);
+			}
+		}
+		pthread_mutex_unlock(&all->meal_mtx);
 	}
 	return (NULL);
 }
@@ -47,11 +68,11 @@ int	check_is_die(t_philo *philo)
 
 	pthread_mutex_lock(&philo->all->meal_mtx);
 	now = get_millis_time();
-	time_since_last_meal = now - philo->last_meal_time;
+	time_since_last_meal = now - philo->time_last_meal;
 	// printf("flag = %d th = %d %zu > %zu\n", philo->all->dead_flag, philo->id,
-	// 	time_since_last_meal, philo->die_time);
+	// 	time_since_last_meal, philo->time_to_die);
 	pthread_mutex_unlock(&philo->all->meal_mtx);
-	if (time_since_last_meal > philo->die_time)
+	if (time_since_last_meal > philo->time_to_die)
 		return (1);
 	return (0);
 }
@@ -59,20 +80,8 @@ int	check_is_die(t_philo *philo)
 void	one_philo_case(t_philo *philo)
 {
 	print_message(philo, "has taken a fork 1");
-	ft_usleep(philo->die_time);
+	ft_usleep(philo->time_to_die);
 	write_die_time(philo);
-}
-
-int check_is_finish(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->all->goal_mtx);
-		if (philo->all->goal_flag == 1)
-		{
-			pthread_mutex_unlock(&philo->all->goal_mtx);
-			return (1);
-		}
-	pthread_mutex_unlock(&philo->all->goal_mtx);
-	return (0);
 }
 
 void	*do_action(void *arg)
@@ -85,23 +94,24 @@ void	*do_action(void *arg)
 		one_philo_case(philo);
 		return (NULL);
 	}
-	while (1 && (philo->all->dead_flag == false
-		|| philo->all->goal_flag == false))
+	while (!philo->all->dead_flag && !philo->all->goal_flag)
 	{
 		if (check_is_die(philo))
 		{
 			write_die_time(philo);
 			return (NULL);
 		}
-		if (check_is_finish(philo))
-			return (NULL);
-		if (check_can_eat(philo))
+		if (philo->state != FINISHED)
 		{
-			if (do_eat(philo))
-				return (NULL);
-			do_sleep(philo);
+			if (check_can_eat(philo))
+			{
+				if (do_eat(philo))
+					return (NULL);
+				else
+					do_sleep(philo);
+			}
+			do_think(philo);
 		}
-		do_think(philo);
 	}
 	return (NULL);
 }

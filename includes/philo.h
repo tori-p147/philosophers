@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 20:17:13 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:44:45 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,26 @@
 
 typedef struct s_all	t_all;
 
+typedef enum ph_state
+{
+	CREATED = 0,
+	EATING = 1,
+	SLEEPING = 2,
+	THINKING = 3,
+	FINISHED = 4
+}						t_ph_state;
+
 typedef struct s_philo
 {
 	int					id;
 	pthread_t			thread;
-	bool				is_eating;
+	t_ph_state			state;
 	int					meal_eaten;
 	int					philos_count;
-	uint64_t			die_time;
-	uint64_t			eat_time;
-	uint64_t			last_meal_time;
-	uint64_t			sleep_time;
-	int					meal_stock;
-	uint64_t			think_time;
+	uint64_t			time_to_die;
+	uint64_t			time_to_eat;
+	uint64_t			time_last_meal;
+	uint64_t			time_to_sleep;
 	pthread_mutex_t		*lfork_mtx;
 	pthread_mutex_t		*rfork_mtx;
 	t_all				*all;
@@ -48,7 +55,8 @@ typedef struct s_all
 	int					philos_count;
 	bool				dead_flag;
 	bool				goal_flag;
-	uint64_t			start_time;
+	uint64_t			time_created;
+	int					meal_stock;
 	pthread_mutex_t		goal_mtx;
 	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		dead_mtx;
@@ -59,6 +67,7 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
+int						check_is_finish(t_philo *philo);
 int						check_meals_goal(t_philo *philo);
 void					print_message(t_philo *philo, char *str);
 int						check_can_eat(t_philo *philo);
