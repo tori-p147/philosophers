@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/10 16:46:36 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/10 21:59:42 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ int	init_all(t_all *all, int *args)
 	all->philos = alloc_philos(all->philos_count);
 	if (!all->philos)
 		return (0);
+	pthread_mutex_init(&all->state_mtx, NULL);
 	pthread_mutex_init(&all->meal_mtx, NULL);
 	pthread_mutex_init(&all->dead_mtx, NULL);
 	pthread_mutex_init(&all->write_mtx, NULL);
