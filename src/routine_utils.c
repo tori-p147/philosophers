@@ -3,33 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/10 21:31:28 by vmatsuda         ###   ########.fr       */
+/*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
+/*   Updated: 2025/12/11 18:48:31 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	do_sleep(t_philo *philo)
+void change_state_and_time_last_meal(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->all->state_mtx);
-	philo->state = SLEEPING;
+	philo->state = EATING;
 	pthread_mutex_unlock(&philo->all->state_mtx);
-	print_message(philo, "is sleeping");
-	ft_usleep(philo->time_to_sleep);
-}
-
-void	do_think(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->all->state_mtx);
-	if (philo->state != THINKING)
-	{
-		philo->state = THINKING;
-		print_message(philo, "is thinking");
-	}
-	pthread_mutex_unlock(&philo->all->state_mtx);
+	pthread_mutex_lock(&philo->all->meal_mtx);
+	philo->time_last_meal = get_millis_time();
+	pthread_mutex_unlock(&philo->all->meal_mtx);
+	ft_usleep(philo->time_to_eat);
 }
 
 void	write_die_time(t_philo *philo)
@@ -37,83 +28,22 @@ void	write_die_time(t_philo *philo)
 	print_message(philo, "died");
 	pthread_mutex_lock(&philo->all->dead_mtx);
 	philo->all->dead_flag = 1;
-	printf("dead_mutex %d\n", philo->all->dead_flag);
+	// printf("dead_mutex %d\n", philo->all->dead_flag);
 	pthread_mutex_unlock(&philo->all->dead_mtx);
 }
 
-int	check_can_eat(t_philo *philo)
+void	print_message(t_philo *philo, char *str)
 {
-	int	left_neighbor_id;
-	int	right_neighbor_id;
-
-	left_neighbor_id = philo->id - 1;
-	right_neighbor_id = philo->id + 1;
-	if (philo->id == philo->philos_count)
-		right_neighbor_id = 1;
-	else if (philo->id == 1)
-		left_neighbor_id = philo->philos_count;
-	pthread_mutex_lock(&philo->all->state_mtx);
-	if (philo->all->philos[left_neighbor_id + 1].state == EATING
-		&& philo->all->philos[right_neighbor_id - 1].state == EATING)
+	pthread_mutex_lock(&philo->all->write_mtx);
+	pthread_mutex_lock(&philo->all->dead_mtx);
+	if (philo->all->dead_flag)
 	{
-		pthread_mutex_unlock(&philo->all->state_mtx);
-		return (0);
+		pthread_mutex_unlock(&philo->all->dead_mtx);
+		pthread_mutex_unlock(&philo->all->write_mtx);
+		return ;
 	}
-	pthread_mutex_unlock(&philo->all->state_mtx);
-	return (1);
-}
-
-int	do_eat(t_philo *philo)
-{
-	pthread_mutex_t	*first;
-	pthread_mutex_t	*second;
-
-	if (philo->id % 2 == 0)
-	{
-		first = philo->lfork_mtx;
-		second = philo->rfork_mtx;
-	}
-	else
-	{
-		first = philo->rfork_mtx;
-		second = philo->lfork_mtx;
-	}
-	pthread_mutex_lock(first);
-	print_message(philo, "has taken a fork 1");
-	pthread_mutex_lock(second);
-	print_message(philo, "has taken a fork 2");
-	print_message(philo, "is eating");
-	pthread_mutex_lock(&philo->all->meal_mtx);
-	pthread_mutex_lock(&philo->all->state_mtx);
-	philo->state = EATING;
-	pthread_mutex_unlock(&philo->all->state_mtx);
-	philo->time_last_meal = get_millis_time();
-	pthread_mutex_unlock(&philo->all->meal_mtx);
-	ft_usleep(philo->time_to_eat);
-	if (check_is_finish(philo))
-	{
-		pthread_mutex_unlock(&philo->all->meal_mtx);
-		pthread_mutex_unlock(first);
-		pthread_mutex_unlock(second);
-		return (1);
-	}
-	pthread_mutex_unlock(first);
-	pthread_mutex_unlock(second);
-	return (0);
-}
-
-int	check_is_finish(t_philo *philo)
-{
-	if (philo->all->meal_stock != 0)
-	{
-		philo->meal_eaten++;
-		printf("%d philo meal eaten %d\n", philo->id, philo->meal_eaten);
-		if (philo->all->meal_stock == philo->meal_eaten)
-		{
-			printf("%d philo eat all %d\n", philo->id, philo->meal_eaten);
-			philo->state = FINISHED;
-			return (1);
-		}
-	}
-	return (0);
+	pthread_mutex_unlock(&philo->all->dead_mtx);
+	printf("%lu %d %s\n", get_elapsed_time(philo->all->time_created), philo->id,
+		str);
+	pthread_mutex_unlock(&philo->all->write_mtx);
 }

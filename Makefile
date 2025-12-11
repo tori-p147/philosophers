@@ -13,11 +13,12 @@ INCLUDES  = -I$(INC_DIR)
 SRC_FILES = main.c \
 		validation_utils.c \
 		init.c \
-		routine.c \
+		routine_utils.c \
 		free_utils.c \
 		support_utils.c \
 		time_utils.c \
-		routine_utils.c
+		routine_case_checker.c \
+		routine_do.c
 
 SOURCES = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 

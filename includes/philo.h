@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/10 21:09:31 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 18:49:55 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,14 +68,17 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
+void change_state_and_time_last_meal(t_philo *philo);
+int increment_eaten_meal_and_check_finish(t_philo *philo);
+// int						check_end_flags(t_philo *philo);
+int						check_goal(t_all *all);
 int						check_is_finish(t_philo *philo);
-int						check_meals_goal(t_philo *philo);
 void					print_message(t_philo *philo, char *str);
 int						check_can_eat(t_philo *philo);
 void					do_sleep(t_philo *philo);
 void					do_think(t_philo *philo);
 int						do_eat(t_philo *philo);
-void					one_philo_case(t_philo *philo);
+int						one_philo_case(t_philo *philo);
 int						check_is_die(t_philo *philo);
 void					write_die_time(t_philo *philo);
 uint64_t				get_elapsed_time(uint64_t start_time);
