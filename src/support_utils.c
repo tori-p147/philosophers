@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   support_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 20:49:34 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/09 15:05:23 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 21:49:52 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 
 pthread_mutex_t	*alloc_forks(int n)
 {
-	pthread_mutex_t *forks = malloc(sizeof(pthread_mutex_t) * n);
+	pthread_mutex_t	*forks;
+
+	forks = malloc(sizeof(pthread_mutex_t) * n);
 	if (!forks)
 		return (NULL);
 	return (forks);
@@ -22,46 +24,22 @@ pthread_mutex_t	*alloc_forks(int n)
 
 pthread_t	*alloc_threads(int n)
 {
-	// pthread_t	*ptr;
-	// int			i;
 	pthread_t	*threads;
 
 	threads = malloc(sizeof(pthread_t) * (n));
 	if (!threads)
 		return (NULL);
-	// ptr = thread_pool;
-	// i = 0;
-	// while (i < n)
-	// {
-	// 	printf("thread %d %p\n", i, thread_pool);
-	// 	thread_pool++;
-	// 	i++;
-	// }
-	// thread_pool = ptr;
-	// printf("pool = %p\n", thread_pool);
 	return (threads);
 }
 
 t_philo	*alloc_philos(int n)
 {
-	t_philo *philos = malloc(sizeof(t_philo) * n);
+	t_philo	*philos;
+
+	philos = malloc(sizeof(t_philo) * n);
 	if (!philos)
 		return (NULL);
 	return (philos);
-}
-
-void	print_philos(t_all *all, int n)
-{
-	int	i;
-
-	i = 0;
-	t_philo *ptr = all->philos;
-	while (i < n)
-	{
-		printf("id = %d\n", all->philos[i].id);
-		i++;
-	}
-	all->philos = ptr;
 }
 
 int	ft_atoi(const char *str)

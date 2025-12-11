@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 18:56:21 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 22:24:55 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,13 @@ void	*do_monitoring(void *arg)
 			return (NULL);
 		}
 		pthread_mutex_unlock(&all->dead_mtx);
+		pthread_mutex_lock(&all->goal_mtx);
 		if (all->meal_stock > 0 && check_goal(all))
+		{
+			pthread_mutex_unlock(&all->goal_mtx);
 			return (NULL);
+		}
+		pthread_mutex_unlock(&all->goal_mtx);
 	}
 	return (NULL);
 }
@@ -35,7 +40,6 @@ void	*do_monitoring(void *arg)
 void	*do_action(void *arg)
 {
 	t_philo	*philo;
-	// bool	not_finished;
 
 	philo = (t_philo *)arg;
 	while (1)

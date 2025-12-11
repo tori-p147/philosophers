@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 17:10:50 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 21:53:24 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ void	ft_usleep(uint64_t milliseconds)
 	start = get_millis_time();
 	while (get_millis_time() - start < milliseconds)
 	{
-		if(milliseconds - (get_millis_time() - start) > 5)
+		if (milliseconds - (get_millis_time() - start) > 5)
 			usleep(1000);
 		else
-			usleep(100); ;
+			usleep(100);
 	}
 }
 

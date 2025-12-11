@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_case_checker.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 18:55:06 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 22:06:01 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,32 @@
 
 int	check_can_eat(t_philo *philo)
 {
-	int	left_neighbor_id;
-	int	right_neighbor_id;
+	int			left_neighbor_id;
+	int			right_neighbor_id;
+	t_ph_state	lstate;
+	t_ph_state	rstate;
 
+	lstate = 0;
+	rstate = 0;
 	left_neighbor_id = philo->id - 1;
 	right_neighbor_id = philo->id + 1;
-	if (philo->id == philo->philos_count)
+	if (philo->id == philo->all->philos_count)
 		right_neighbor_id = 1;
 	else if (philo->id == 1)
-		left_neighbor_id = philo->philos_count;
+		left_neighbor_id = philo->all->philos_count;
 	pthread_mutex_lock(&philo->all->state_mtx);
-	if (philo->all->philos[left_neighbor_id + 1].state == EATING
-		&& philo->all->philos[right_neighbor_id - 1].state == EATING)
-	{
-		pthread_mutex_unlock(&philo->all->state_mtx);
-		return (0);
-	}
+	lstate = philo->all->philos[left_neighbor_id - 1].state;
+	rstate = philo->all->philos[right_neighbor_id - 1].state;
 	pthread_mutex_unlock(&philo->all->state_mtx);
+	if (lstate == EATING && rstate == EATING)
+		return (0);
 	return (1);
 }
 
 int	check_is_finish(t_philo *philo)
 {
-	if (philo->all->meal_stock > 0 && philo->all->meal_stock == philo->meal_eaten)
+	if (philo->all->meal_stock > 0
+		&& philo->all->meal_stock == philo->meal_eaten)
 	{
 		printf("%d philo eat all %d\n", philo->id, philo->meal_eaten);
 		pthread_mutex_lock(&philo->all->state_mtx);
@@ -61,8 +64,9 @@ int	check_goal(t_all *all)
 		pthread_mutex_lock(&all->state_mtx);
 		is_finished = all->philos[i].state == FINISHED;
 		pthread_mutex_unlock(&all->state_mtx);
-		if (is_finished)
-			finished_ph_counter++;
+		if (is_finished == false)
+			break ;
+		finished_ph_counter++;
 		if (finished_ph_counter == all->philos_count)
 		{
 			printf("goal!! %d = %d\n", all->philos_count, finished_ph_counter);
@@ -89,7 +93,7 @@ int	check_is_die(t_philo *philo)
 	return (0);
 }
 
-int increment_eaten_meal_and_check_finish(t_philo *philo)
+int	increment_eaten_meal_and_check_finish(t_philo *philo)
 {
 	if (philo->all->meal_stock != 0)
 	{
@@ -104,22 +108,3 @@ int increment_eaten_meal_and_check_finish(t_philo *philo)
 	}
 	return (0);
 }
-
-// int	check_end_flags(t_philo *philo)
-// {
-// 	pthread_mutex_lock(&philo->all->dead_mtx);
-// 	if (philo->all->dead_flag)
-// 	{
-// 		pthread_mutex_unlock(&philo->all->dead_mtx);
-// 		return (1);
-// 	}
-// 	pthread_mutex_unlock(&philo->all->dead_mtx);
-// 	pthread_mutex_lock(&philo->all->goal_mtx);
-// 	if (philo->all->goal_flag)
-// 	{
-// 		pthread_mutex_unlock(&philo->all->goal_mtx);
-// 		return (1);
-// 	}
-// 	pthread_mutex_unlock(&philo->all->goal_mtx);
-// 	return (0);
-// }

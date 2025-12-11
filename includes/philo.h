@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 18:49:55 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 21:26:09 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ typedef struct s_philo
 	pthread_t			thread;
 	t_ph_state			state;
 	int					meal_eaten;
-	int					philos_count;
 	uint64_t			time_to_die;
 	uint64_t			time_to_eat;
 	uint64_t			time_last_meal;
@@ -68,9 +67,9 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
-void change_state_and_time_last_meal(t_philo *philo);
-int increment_eaten_meal_and_check_finish(t_philo *philo);
-// int						check_end_flags(t_philo *philo);
+int						free_exit(t_all *all, int *args, int exit_status);
+void					change_state_and_time_last_meal(t_philo *philo);
+int						increment_eaten_meal_and_check_finish(t_philo *philo);
 int						check_goal(t_all *all);
 int						check_is_finish(t_philo *philo);
 void					print_message(t_philo *philo, char *str);
@@ -93,8 +92,6 @@ t_philo					*alloc_philos(int n);
 int						ft_atoi(const char *str);
 int						*parse_nums(int ac, char **av, int *args);
 uint64_t				get_millis_time(void);
-void	print_philos(t_all *all, int n); // delete
-// pthread_mutex_t *init_mtxs(pthread_mutex_t *mtxs, t_all *all);
 void					free_philos(t_philo *philos, int n);
 pthread_t				*free_threads(pthread_t *threads, int n);
 pthread_t				*alloc_threads(int n);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:23 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 10:58:13 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 21:53:00 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,35 @@ int	*prepare_proccess(int ac, char **av, int *args)
 	return (args);
 }
 
-int main_process(t_all *all, int n)
+int	run_threads(t_all *all, int n)
+{
+	int			i;
+	uint64_t	time_created;
+
+	i = 0;
+	time_created = get_millis_time();
+	all->time_created = time_created;
+	if (all->philos_count == 1)
+		return (one_philo_case(&all->philos[i]));
+	while (i < n)
+	{
+		all->philos[i].time_last_meal = all->time_created;
+		pthread_create(&all->philos[i].thread, NULL, do_action,
+			&all->philos[i]);
+		i++;
+	}
+	pthread_create(&all->monitor, NULL, do_monitoring, all);
+	i = 0;
+	while (i < n)
+	{
+		pthread_join(all->philos[i].thread, NULL);
+		i++;
+	}
+	pthread_join(all->monitor, NULL);
+	return (1);
+}
+
+int	main_process(t_all *all, int n)
 {
 	if (!run_threads(all, n))
 		return (1);
@@ -31,8 +59,8 @@ int main_process(t_all *all, int n)
 
 int	main(int ac, char **av)
 {
-	t_all			all;
-	int				*args;
+	t_all	all;
+	int		*args;
 
 	args = NULL;
 	if (ac == 5 || ac == 6)
@@ -41,20 +69,10 @@ int	main(int ac, char **av)
 		if (!args)
 			return (1);
 		if (!init_all(&all, args))
-		{
-			free_all(&all, *args);
-			free(args);
-			return (1);
-		}
+			return (free_exit(&all, args, 1));
 		if (!main_process(&all, args[0]))
-		{
-			free_all(&all, *args);
-			free(args);
-			return (1);
-		}
-		free_all(&all, *args);
-		free(args);
-		return (0);
+			return (free_exit(&all, args, 1));
+		return (free_exit(&all, args, 0));
 	}
 	return (1);
 }

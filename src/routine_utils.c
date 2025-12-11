@@ -3,23 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 18:48:31 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 22:13:38 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void change_state_and_time_last_meal(t_philo *philo)
+void	change_state_and_time_last_meal(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->all->state_mtx);
 	philo->state = EATING;
 	pthread_mutex_unlock(&philo->all->state_mtx);
-	pthread_mutex_lock(&philo->all->meal_mtx);
 	philo->time_last_meal = get_millis_time();
-	pthread_mutex_unlock(&philo->all->meal_mtx);
 	ft_usleep(philo->time_to_eat);
 }
 
@@ -28,7 +26,6 @@ void	write_die_time(t_philo *philo)
 	print_message(philo, "died");
 	pthread_mutex_lock(&philo->all->dead_mtx);
 	philo->all->dead_flag = 1;
-	// printf("dead_mutex %d\n", philo->all->dead_flag);
 	pthread_mutex_unlock(&philo->all->dead_mtx);
 }
 

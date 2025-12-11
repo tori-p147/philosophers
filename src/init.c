@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 18:57:26 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/11 21:50:36 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,77 +20,26 @@ int	one_philo_case(t_philo *philo)
 	return (1);
 }
 
-int	run_threads(t_all *all, int n)
-{
-	int			i;
-	int			j;
-	uint64_t	time_created;
-
-	i = 0;
-	j = 0;
-	time_created = get_millis_time();
-	all->time_created = time_created;
-	if (all->philos_count == 1)
-		return (one_philo_case(&all->philos[i]));
-	while (i < n)
-	{
-		all->philos[i].time_last_meal = all->time_created;
-		if (pthread_create(&all->philos[i].thread, NULL, do_action,
-				&all->philos[i]) != 0)
-		{
-			while (j < i)
-			{
-				pthread_join(all->philos[j].thread, NULL);
-				j++;
-			}
-			return (0);
-		}
-		i++;
-	}
-	if (pthread_create(&all->monitor, NULL, do_monitoring, all) != 0)
-	{
-		j = 0;
-		while (j < i)
-		{
-			pthread_join(all->philos[j].thread, NULL);
-			j++;
-		}
-		return (0);
-	}
-	i = 0;
-	while (i < n)
-	{
-		pthread_join(all->philos[i].thread, NULL);
-		i++;
-	}
-	pthread_join(all->monitor, NULL);
-	return (1);
-}
-
 int	init_philo(t_philo *philo, t_all *all, int *args)
 {
 	philo->state = CREATED;
-	philo->philos_count = all->philos_count;
+	philo->meal_eaten = 0;
 	philo->time_to_die = args[1];
 	philo->time_to_eat = args[2];
 	philo->time_last_meal = all->time_created;
 	philo->time_to_sleep = args[3];
-	// printf("init philo meal_stock %d\n", philo->meal_stock);
-	// pthread_mutex_init(&philo->meal_mtx, NULL);
 	philo->lfork_mtx = &all->forks[philo->id - 1];
 	philo->rfork_mtx = &all->forks[(philo->id) % all->philos_count];
 	philo->all = all;
 	return (1);
 }
 
-int	init_all(t_all *all, int *args)
+int	alloc_all(t_all *all)
 {
-	t_philo			*ptr;
 	pthread_mutex_t	*forks_ptr;
 	int				i;
 
 	i = 0;
-	all->philos_count = args[0];
 	all->ph_thread_pool = alloc_threads(all->philos_count);
 	if (!all->ph_thread_pool)
 		return (0);
@@ -105,12 +54,26 @@ int	init_all(t_all *all, int *args)
 	all->philos = alloc_philos(all->philos_count);
 	if (!all->philos)
 		return (0);
+	return (1);
+}
+
+void	init_mtx(t_all *all)
+{
 	pthread_mutex_init(&all->state_mtx, NULL);
 	pthread_mutex_init(&all->goal_mtx, NULL);
 	pthread_mutex_init(&all->meal_mtx, NULL);
 	pthread_mutex_init(&all->dead_mtx, NULL);
 	pthread_mutex_init(&all->write_mtx, NULL);
-	i = 1;
+}
+
+int	init_all(t_all *all, int *args)
+{
+	t_philo	*ptr;
+	int		i;
+
+	all->philos_count = args[0];
+	alloc_all(all);
+	init_mtx(all);
 	ptr = all->philos;
 	all->dead_flag = false;
 	all->goal_flag = false;
@@ -119,14 +82,14 @@ int	init_all(t_all *all, int *args)
 	else
 		all->meal_stock = args[4];
 	all->time_created = 0;
-	while (i <= all->philos_count)
+	i = 0;
+	while (i < all->philos_count)
 	{
-		all->philos->id = i;
+		all->philos->id = i + 1;
 		init_philo(all->philos, all, args);
 		all->philos++;
 		i++;
 	}
 	all->philos = ptr;
-	// print_philos(all, all->philos_count);
 	return (1);
 }
