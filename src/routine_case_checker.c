@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_case_checker.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 22:06:01 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 16:36:04 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ int	check_is_finish(t_philo *philo)
 	if (philo->all->meal_stock > 0
 		&& philo->all->meal_stock == philo->meal_eaten)
 	{
-		printf("%d philo eat all %d\n", philo->id, philo->meal_eaten);
 		pthread_mutex_lock(&philo->all->state_mtx);
 		philo->state = FINISHED;
 		pthread_mutex_unlock(&philo->all->state_mtx);
@@ -52,27 +51,21 @@ int	check_is_finish(t_philo *philo)
 
 int	check_goal(t_all *all)
 {
-	int		i;
-	int		finished_ph_counter;
-	bool	is_finished;
+	size_t	i;
+	size_t	finished_ph_counter;
 
-	is_finished = false;
-	i = 0;
+	i = -1;
 	finished_ph_counter = 0;
-	while (i < all->philos_count)
+	while (++i < all->philos_count)
 	{
-		pthread_mutex_lock(&all->state_mtx);
-		is_finished = all->philos[i].state == FINISHED;
-		pthread_mutex_unlock(&all->state_mtx);
-		if (is_finished == false)
+		if (!check_is_finish(&all->philos[i]))
 			break ;
 		finished_ph_counter++;
 		if (finished_ph_counter == all->philos_count)
 		{
-			printf("goal!! %d = %d\n", all->philos_count, finished_ph_counter);
+			printf("goal!! %ld = %ld\n", all->philos_count, finished_ph_counter);
 			return (1);
 		}
-		i++;
 	}
 	return (0);
 }
@@ -106,5 +99,17 @@ int	increment_eaten_meal_and_check_finish(t_philo *philo)
 			return (1);
 		}
 	}
+	return (0);
+}
+
+int	check_dead_flag(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->all->dead_mtx);
+	if (philo->all->dead_flag)
+	{
+		pthread_mutex_unlock(&philo->all->dead_mtx);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->all->dead_mtx);
 	return (0);
 }

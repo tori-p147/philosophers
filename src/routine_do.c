@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 22:24:55 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 16:22:15 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void	*do_monitoring(void *arg)
 {
 	t_all	*all;
+	size_t	i;
 
 	all = (t_all *)arg;
 	while (1)
@@ -26,6 +27,18 @@ void	*do_monitoring(void *arg)
 			return (NULL);
 		}
 		pthread_mutex_unlock(&all->dead_mtx);
+		i = -1;
+		while (++i < all->philos_count)
+		{
+			if (check_is_die(&all->philos[i]))
+			{
+				pthread_mutex_lock(&all->dead_mtx);
+				all->dead_flag = 1;
+				pthread_mutex_unlock(&all->dead_mtx);
+				write_die_time(&all->philos[i]);
+				return (NULL);
+			}
+		}
 		pthread_mutex_lock(&all->goal_mtx);
 		if (all->meal_stock > 0 && check_goal(all))
 		{
@@ -42,7 +55,7 @@ void	*do_action(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (1)
+	while (1 && !philo->all->dead_flag)
 	{
 		if (check_is_die(philo))
 		{
@@ -97,7 +110,7 @@ void	do_sleep(t_philo *philo)
 	philo->state = SLEEPING;
 	pthread_mutex_unlock(&philo->all->state_mtx);
 	print_message(philo, "is sleeping");
-	ft_usleep(philo->time_to_sleep);
+	ft_usleep(philo->time_to_sleep, philo);
 }
 
 void	do_think(t_philo *philo)

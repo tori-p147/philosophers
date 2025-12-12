@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 21:53:24 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 15:57:10 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,20 @@ uint64_t	get_millis_time(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	ft_usleep(uint64_t milliseconds)
+void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 {
 	uint64_t	start;
+	bool		is_dead;
 
+	is_dead = false;
 	start = get_millis_time();
 	while (get_millis_time() - start < milliseconds)
 	{
+		pthread_mutex_lock(&philo->all->dead_mtx);
+		is_dead = philo->all->dead_flag;
+		pthread_mutex_unlock(&philo->all->dead_mtx);
+		if (is_dead)
+			break ;
 		if (milliseconds - (get_millis_time() - start) > 5)
 			usleep(1000);
 		else

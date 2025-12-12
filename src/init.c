@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/11 21:50:36 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 16:09:16 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	one_philo_case(t_philo *philo)
 {
 	print_message(philo, "has taken a fork 1");
-	ft_usleep(philo->time_to_die);
+	ft_usleep(philo->time_to_die, philo);
 	write_die_time(philo);
 	return (1);
 }
@@ -69,7 +69,7 @@ void	init_mtx(t_all *all)
 int	init_all(t_all *all, int *args)
 {
 	t_philo	*ptr;
-	int		i;
+	size_t	i;
 
 	all->philos_count = args[0];
 	alloc_all(all);
@@ -82,13 +82,12 @@ int	init_all(t_all *all, int *args)
 	else
 		all->meal_stock = args[4];
 	all->time_created = 0;
-	i = 0;
-	while (i < all->philos_count)
+	i = -1;
+	while (++i < all->philos_count)
 	{
 		all->philos->id = i + 1;
 		init_philo(all->philos, all, args);
 		all->philos++;
-		i++;
 	}
 	all->philos = ptr;
 	return (1);
