@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 15:57:10 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 21:54:18 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,7 @@ void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 		pthread_mutex_unlock(&philo->all->dead_mtx);
 		if (is_dead)
 			break ;
-		if (milliseconds - (get_millis_time() - start) > 5)
-			usleep(1000);
-		else
-			usleep(100);
+		usleep(1000);
 	}
 }
 

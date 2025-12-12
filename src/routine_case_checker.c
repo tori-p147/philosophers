@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_case_checker.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 16:36:04 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 21:47:24 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,7 @@ int	check_goal(t_all *all)
 			break ;
 		finished_ph_counter++;
 		if (finished_ph_counter == all->philos_count)
-		{
-			printf("goal!! %ld = %ld\n", all->philos_count, finished_ph_counter);
 			return (1);
-		}
 	}
 	return (0);
 }
@@ -83,22 +80,6 @@ int	check_is_die(t_philo *philo)
 	pthread_mutex_unlock(&philo->all->meal_mtx);
 	if (time_since_last_meal > philo->time_to_die)
 		return (1);
-	return (0);
-}
-
-int	increment_eaten_meal_and_check_finish(t_philo *philo)
-{
-	if (philo->all->meal_stock != 0)
-	{
-		philo->meal_eaten++;
-		if (philo->all->meal_stock == philo->meal_eaten)
-		{
-			pthread_mutex_lock(&philo->all->state_mtx);
-			philo->state = FINISHED;
-			pthread_mutex_unlock(&philo->all->state_mtx);
-			return (1);
-		}
-	}
 	return (0);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 16:09:44 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/12 18:56:47 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,10 @@ typedef enum ph_state
 
 typedef struct s_philo
 {
-	size_t					id;
+	size_t				id;
 	pthread_t			thread;
 	t_ph_state			state;
-	int					meal_eaten;
+	size_t				meal_eaten;
 	uint64_t			time_to_die;
 	uint64_t			time_to_eat;
 	uint64_t			time_last_meal;
@@ -55,7 +55,7 @@ typedef struct s_all
 	bool				dead_flag;
 	bool				goal_flag;
 	uint64_t			time_created;
-	int					meal_stock;
+	size_t				meal_stock;
 	pthread_mutex_t		goal_mtx;
 	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		state_mtx;
@@ -84,7 +84,7 @@ void					write_die_time(t_philo *philo);
 uint64_t				get_elapsed_time(uint64_t start_time);
 uint64_t				sec_to_millis(uint64_t sec);
 uint64_t				micros_to_millis(uint64_t usec);
-void	ft_usleep(uint64_t milliseconds, t_philo *philo);
+void					ft_usleep(uint64_t milliseconds, t_philo *philo);
 int						run_threads(t_all *all, int n);
 int						main_process(t_all *all, int n);
 pthread_mutex_t			*alloc_forks(int n);
