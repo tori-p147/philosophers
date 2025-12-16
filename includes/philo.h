@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 18:56:47 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 17:47:52 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,20 @@
 
 typedef struct s_all	t_all;
 
-typedef enum ph_state
+typedef enum ph_action
 {
-	CREATED = 0,
-	EATING = 1,
-	SLEEPING = 2,
-	THINKING = 3,
-	FINISHED = 4
-}						t_ph_state;
+	FORK = 0,
+	EAT = 1,
+	SLEEP = 2,
+	THINK = 3,
+}						t_ph_action;
 
 typedef struct s_philo
 {
 	size_t				id;
+	bool is_eating;
 	pthread_t			thread;
-	t_ph_state			state;
+	uint64_t			time_created;
 	size_t				meal_eaten;
 	uint64_t			time_to_die;
 	uint64_t			time_to_eat;
@@ -51,14 +51,13 @@ typedef struct s_philo
 
 typedef struct s_all
 {
-	size_t				philos_count;
+	size_t queue_size;
 	bool				dead_flag;
-	bool				goal_flag;
-	uint64_t			time_created;
+	size_t				philos_count;
 	size_t				meal_stock;
-	pthread_mutex_t		goal_mtx;
-	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		state_mtx;
+	pthread_mutex_t		meal_mtx;
+	pthread_mutex_t		time_mtx;
 	pthread_mutex_t		dead_mtx;
 	pthread_mutex_t		write_mtx;
 	pthread_t			monitor;
@@ -67,26 +66,26 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
-int						check_dead_flag(t_philo *philo);
+void	print_die_time(t_philo *philo, uint64_t now);
+void set_state(t_philo *philo, bool is_eating);
+void	set_dead_flag(t_philo *philo);
+void					set_time_last_meal(t_philo *philo);
 int						free_exit(t_all *all, int *args, int exit_status);
-void					change_state_and_time_last_meal(t_philo *philo);
-int						increment_eaten_meal_and_check_finish(t_philo *philo);
-int						check_goal(t_all *all);
-int						check_is_finish(t_philo *philo);
-void					print_message(t_philo *philo, char *str);
+int						increment_eaten_meal(t_philo *philo);
+int						check_eaten_meal(t_philo *philo);
+void					print_message(t_philo *philo, uint64_t now, t_ph_action a);
 int						check_can_eat(t_philo *philo);
 void					do_sleep(t_philo *philo);
 void					do_think(t_philo *philo);
-int						do_eat(t_philo *philo);
-int						one_philo_case(t_philo *philo);
-int						check_is_die(t_philo *philo);
-void					write_die_time(t_philo *philo);
+void						do_eat(t_philo *philo);
+// int						one_philo_case(t_philo *philo);
+int						check_die(t_philo *philo);
+int						exit_dead_flag(t_philo *philo);
 uint64_t				get_elapsed_time(uint64_t start_time);
 uint64_t				sec_to_millis(uint64_t sec);
 uint64_t				micros_to_millis(uint64_t usec);
 void					ft_usleep(uint64_t milliseconds, t_philo *philo);
 int						run_threads(t_all *all, int n);
-int						main_process(t_all *all, int n);
 pthread_mutex_t			*alloc_forks(int n);
 int						free_all(t_all *all, int n);
 t_philo					*alloc_philos(int n);

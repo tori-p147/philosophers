@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 21:54:36 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 18:55:59 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,36 @@
 void	*do_monitoring(void *arg)
 {
 	t_all	*all;
+	size_t	i;
+	size_t	finished_ph_counter;
+	size_t	eaten;
 
 	all = (t_all *)arg;
 	while (1)
 	{
-		pthread_mutex_lock(&all->dead_mtx);
-		if (all->dead_flag)
+		finished_ph_counter = 0;
+		i = -1;
+		while (++i < all->philos_count)
 		{
-			pthread_mutex_unlock(&all->dead_mtx);
-			return (NULL);
+			pthread_mutex_lock(&all->meal_mtx);
+			eaten = all->philos[i].meal_eaten;
+			pthread_mutex_unlock(&all->meal_mtx);
+			if (all->meal_stock > 0 && eaten >= all->meal_stock)
+			{
+				finished_ph_counter++;
+				continue ;
+			}
+			if (check_die(&all->philos[i]))
+			{
+				set_dead_flag(&all->philos[i]);
+				print_die_time(&all->philos[i],
+					get_elapsed_time(all->philos[i].time_created));
+				return (NULL);
+			}
 		}
-		pthread_mutex_unlock(&all->dead_mtx);
-		pthread_mutex_lock(&all->goal_mtx);
-		if (all->meal_stock > 0 && check_goal(all))
-		{
-			pthread_mutex_unlock(&all->goal_mtx);
+		if (finished_ph_counter >= all->philos_count)
 			return (NULL);
-		}
-		pthread_mutex_unlock(&all->goal_mtx);
+		usleep(1000);
 	}
 	return (NULL);
 }
@@ -40,73 +52,72 @@ void	*do_monitoring(void *arg)
 void	*do_action(void *arg)
 {
 	t_philo	*philo;
+	size_t	eaten;
 
 	philo = (t_philo *)arg;
+	if (philo->all->philos_count == 1)
+	{
+		print_message(philo, get_elapsed_time(philo->time_created), FORK);
+		return (NULL);
+	}
 	while (1)
 	{
-		if (check_is_die(philo))
-		{
-			write_die_time(philo);
+		if (exit_dead_flag(philo))
 			return (NULL);
-		}
-		if (check_dead_flag(philo))
+		if (!check_can_eat(philo))
+			continue ;
+		do_eat(philo);
+		pthread_mutex_lock(&philo->all->meal_mtx);
+		eaten = philo->meal_eaten;
+		pthread_mutex_unlock(&philo->all->meal_mtx);
+		if (philo->all->meal_stock > 0 && eaten >= philo->all->meal_stock)
 			return (NULL);
-		if (check_can_eat(philo) && !check_is_finish(philo))
-		{
-			if (do_eat(philo))
-				return (NULL);
-			else
-				do_sleep(philo);
-		}
+		do_sleep(philo);
 		do_think(philo);
 	}
 	return (NULL);
 }
 
-int	do_eat(t_philo *philo)
+void	do_eat(t_philo *philo)
 {
-	pthread_mutex_t	*first;
-	pthread_mutex_t	*second;
-
+set_state(philo, 1);
 	if (philo->id % 2 == 0)
 	{
-		first = philo->lfork_mtx;
-		second = philo->rfork_mtx;
+		pthread_mutex_lock(philo->lfork_mtx);
+		pthread_mutex_lock(philo->rfork_mtx);
 	}
 	else
 	{
-		first = philo->rfork_mtx;
-		second = philo->lfork_mtx;
+		pthread_mutex_lock(philo->rfork_mtx);
+		pthread_mutex_lock(philo->lfork_mtx);
 	}
-	pthread_mutex_lock(first);
-	print_message(philo, "has taken a fork");
-	pthread_mutex_lock(second);
-	print_message(philo, "has taken a fork");
-	print_message(philo, "is eating");
-	change_state_and_time_last_meal(philo);
-	pthread_mutex_unlock(first);
-	pthread_mutex_unlock(second);
-	if (increment_eaten_meal_and_check_finish(philo))
-		return (1);
-	return (0);
+	
+	print_message(philo, get_elapsed_time(philo->time_created), FORK);
+	print_message(philo, get_elapsed_time(philo->time_created), FORK);
+	print_message(philo, get_elapsed_time(philo->time_created), EAT);
+	set_time_last_meal(philo);
+	ft_usleep(philo->time_to_eat, philo);
+	increment_eaten_meal(philo);
+	set_state(philo, 0);
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_unlock(philo->rfork_mtx);
+		pthread_mutex_unlock(philo->lfork_mtx);
+	}
+	else
+	{
+		pthread_mutex_unlock(philo->lfork_mtx);
+		pthread_mutex_unlock(philo->rfork_mtx);
+	}
 }
 
 void	do_sleep(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->all->state_mtx);
-	philo->state = SLEEPING;
-	pthread_mutex_unlock(&philo->all->state_mtx);
-	print_message(philo, "is sleeping");
+	print_message(philo, get_elapsed_time(philo->time_created), SLEEP);
 	ft_usleep(philo->time_to_sleep, philo);
 }
 
 void	do_think(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->all->state_mtx);
-	if (philo->state != THINKING)
-	{
-		philo->state = THINKING;
-		print_message(philo, "is thinking");
-	}
-	pthread_mutex_unlock(&philo->all->state_mtx);
+	print_message(philo, get_elapsed_time(philo->time_created), THINK);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 21:54:18 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 18:57:49 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,10 @@ uint64_t	get_millis_time(void)
 void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 {
 	uint64_t	start;
-	bool		is_dead;
-
-	is_dead = false;
 	start = get_millis_time();
 	while (get_millis_time() - start < milliseconds)
 	{
-		pthread_mutex_lock(&philo->all->dead_mtx);
-		is_dead = philo->all->dead_flag;
-		pthread_mutex_unlock(&philo->all->dead_mtx);
-		if (is_dead)
+		if (exit_dead_flag(philo))
 			break ;
 		usleep(1000);
 	}
@@ -50,5 +44,8 @@ void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 
 uint64_t	get_elapsed_time(uint64_t start_time)
 {
+	uint64_t now = get_millis_time();
+	if (now < start_time)
+        return (0);
 	return (get_millis_time() - start_time);
 }

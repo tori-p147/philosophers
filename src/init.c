@@ -6,27 +6,20 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 16:09:16 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 18:19:29 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	one_philo_case(t_philo *philo)
-{
-	print_message(philo, "has taken a fork 1");
-	ft_usleep(philo->time_to_die, philo);
-	write_die_time(philo);
-	return (1);
-}
-
 int	init_philo(t_philo *philo, t_all *all, int *args)
 {
-	philo->state = CREATED;
 	philo->meal_eaten = 0;
+	philo->is_eating = false;
 	philo->time_to_die = args[1];
 	philo->time_to_eat = args[2];
-	philo->time_last_meal = all->time_created;
+	philo->time_created = get_millis_time();
+	philo->time_last_meal = philo->time_created;
 	philo->time_to_sleep = args[3];
 	philo->lfork_mtx = &all->forks[philo->id - 1];
 	philo->rfork_mtx = &all->forks[(philo->id) % all->philos_count];
@@ -60,7 +53,7 @@ int	alloc_all(t_all *all)
 void	init_mtx(t_all *all)
 {
 	pthread_mutex_init(&all->state_mtx, NULL);
-	pthread_mutex_init(&all->goal_mtx, NULL);
+	pthread_mutex_init(&all->time_mtx, NULL);
 	pthread_mutex_init(&all->meal_mtx, NULL);
 	pthread_mutex_init(&all->dead_mtx, NULL);
 	pthread_mutex_init(&all->write_mtx, NULL);
@@ -76,12 +69,10 @@ int	init_all(t_all *all, int *args)
 	init_mtx(all);
 	ptr = all->philos;
 	all->dead_flag = false;
-	all->goal_flag = false;
 	if (!args[4])
 		all->meal_stock = 0;
 	else
 		all->meal_stock = args[4];
-	all->time_created = 0;
 	i = -1;
 	while (++i < all->philos_count)
 	{

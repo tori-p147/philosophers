@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_case_checker.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/12 21:47:24 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 18:56:26 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 int	check_can_eat(t_philo *philo)
 {
-	int			left_neighbor_id;
-	int			right_neighbor_id;
-	t_ph_state	lstate;
-	t_ph_state	rstate;
+	int		left_neighbor_id;
+	int		right_neighbor_id;
+	bool	lstate;
+	bool	rstate;
 
 	lstate = 0;
 	rstate = 0;
@@ -28,69 +28,69 @@ int	check_can_eat(t_philo *philo)
 	else if (philo->id == 1)
 		left_neighbor_id = philo->all->philos_count;
 	pthread_mutex_lock(&philo->all->state_mtx);
-	lstate = philo->all->philos[left_neighbor_id - 1].state;
-	rstate = philo->all->philos[right_neighbor_id - 1].state;
+	lstate = philo->all->philos[left_neighbor_id - 1].is_eating;
+	rstate = philo->all->philos[right_neighbor_id - 1].is_eating;
 	pthread_mutex_unlock(&philo->all->state_mtx);
-	if (lstate == EATING && rstate == EATING)
+	if (lstate == 1 && rstate == 1)
 		return (0);
 	return (1);
 }
 
-int	check_is_finish(t_philo *philo)
+int	check_eaten_meal(t_philo *philo)
 {
-	if (philo->all->meal_stock > 0
-		&& philo->all->meal_stock == philo->meal_eaten)
-	{
-		pthread_mutex_lock(&philo->all->state_mtx);
-		philo->state = FINISHED;
-		pthread_mutex_unlock(&philo->all->state_mtx);
-		return (1);
-	}
-	return (0);
-}
-
-int	check_goal(t_all *all)
-{
-	size_t	i;
-	size_t	finished_ph_counter;
-
-	i = -1;
-	finished_ph_counter = 0;
-	while (++i < all->philos_count)
-	{
-		if (!check_is_finish(&all->philos[i]))
-			break ;
-		finished_ph_counter++;
-		if (finished_ph_counter == all->philos_count)
-			return (1);
-	}
-	return (0);
-}
-
-int	check_is_die(t_philo *philo)
-{
-	uint64_t	now;
-	uint64_t	time_since_last_meal;
+	size_t	meal_eaten;
 
 	pthread_mutex_lock(&philo->all->meal_mtx);
-	now = get_millis_time();
-	while (now < philo->time_last_meal)
-		now = get_millis_time();
-	time_since_last_meal = now - philo->time_last_meal;
+	meal_eaten = philo->meal_eaten;
 	pthread_mutex_unlock(&philo->all->meal_mtx);
-	if (time_since_last_meal > philo->time_to_die)
+	if (philo->all->meal_stock >= meal_eaten)
 		return (1);
 	return (0);
 }
 
-int	check_dead_flag(t_philo *philo)
+void	set_dead_flag(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->all->dead_mtx);
-	if (philo->all->dead_flag)
-	{
-		pthread_mutex_unlock(&philo->all->dead_mtx);
-		return (1);
-	}
+	philo->all->dead_flag = 1;
 	pthread_mutex_unlock(&philo->all->dead_mtx);
+}
+
+int	check_die(t_philo *philo)
+{
+	uint64_t	now;
+	uint64_t	last_meal;
+	size_t		eaten;
+	bool		is_eating;
+
+	is_eating = false;
+	pthread_mutex_lock(&philo->all->state_mtx);
+	is_eating = philo->is_eating;
+	pthread_mutex_unlock(&philo->all->state_mtx);
+	if (is_eating)
+		return (0);
+	pthread_mutex_lock(&philo->all->meal_mtx);
+	eaten = philo->meal_eaten;
+	pthread_mutex_unlock(&philo->all->meal_mtx);
+	pthread_mutex_lock(&philo->all->time_mtx);
+	last_meal = philo->time_last_meal;
+	pthread_mutex_unlock(&philo->all->time_mtx);
+	if (philo->all->meal_stock > 0 && eaten >= philo->all->meal_stock)
+		return (0);
+	now = get_millis_time();
+	if (now - last_meal > philo->time_to_die)
+		return (1);
+	return (0);
+}
+
+int	exit_dead_flag(t_philo *philo)
+{
+	bool	is_dead;
+
+	is_dead = false;
+	pthread_mutex_lock(&philo->all->dead_mtx);
+	is_dead = philo->all->dead_flag;
+	pthread_mutex_unlock(&philo->all->dead_mtx);
+	if (is_dead)
+		return (1);
 	return (0);
 }
