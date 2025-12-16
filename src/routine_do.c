@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 18:55:59 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 20:12:28 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ void	*do_monitoring(void *arg)
 		}
 		if (finished_ph_counter >= all->philos_count)
 			return (NULL);
-		usleep(1000);
 	}
 	return (NULL);
 }
@@ -80,7 +79,7 @@ void	*do_action(void *arg)
 
 void	do_eat(t_philo *philo)
 {
-set_state(philo, 1);
+	set_state(philo, 1);
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(philo->lfork_mtx);
@@ -91,7 +90,6 @@ set_state(philo, 1);
 		pthread_mutex_lock(philo->rfork_mtx);
 		pthread_mutex_lock(philo->lfork_mtx);
 	}
-	
 	print_message(philo, get_elapsed_time(philo->time_created), FORK);
 	print_message(philo, get_elapsed_time(philo->time_created), FORK);
 	print_message(philo, get_elapsed_time(philo->time_created), EAT);
@@ -99,16 +97,8 @@ set_state(philo, 1);
 	ft_usleep(philo->time_to_eat, philo);
 	increment_eaten_meal(philo);
 	set_state(philo, 0);
-	if (philo->id % 2 == 0)
-	{
-		pthread_mutex_unlock(philo->rfork_mtx);
-		pthread_mutex_unlock(philo->lfork_mtx);
-	}
-	else
-	{
-		pthread_mutex_unlock(philo->lfork_mtx);
-		pthread_mutex_unlock(philo->rfork_mtx);
-	}
+	pthread_mutex_unlock(philo->rfork_mtx);
+	pthread_mutex_unlock(philo->lfork_mtx);
 }
 
 void	do_sleep(t_philo *philo)

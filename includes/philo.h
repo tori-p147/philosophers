@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 17:47:52 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/16 20:06:57 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef enum ph_action
 typedef struct s_philo
 {
 	size_t				id;
-	bool is_eating;
+	bool				is_eating;
 	pthread_t			thread;
 	uint64_t			time_created;
 	size_t				meal_eaten;
@@ -51,7 +51,6 @@ typedef struct s_philo
 
 typedef struct s_all
 {
-	size_t queue_size;
 	bool				dead_flag;
 	size_t				philos_count;
 	size_t				meal_stock;
@@ -66,19 +65,19 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
-void	print_die_time(t_philo *philo, uint64_t now);
-void set_state(t_philo *philo, bool is_eating);
-void	set_dead_flag(t_philo *philo);
+void					print_die_time(t_philo *philo, uint64_t now);
+void					set_state(t_philo *philo, bool is_eating);
+void					set_dead_flag(t_philo *philo);
 void					set_time_last_meal(t_philo *philo);
 int						free_exit(t_all *all, int *args, int exit_status);
 int						increment_eaten_meal(t_philo *philo);
 int						check_eaten_meal(t_philo *philo);
-void					print_message(t_philo *philo, uint64_t now, t_ph_action a);
+void					print_message(t_philo *philo, uint64_t now,
+							t_ph_action a);
 int						check_can_eat(t_philo *philo);
 void					do_sleep(t_philo *philo);
 void					do_think(t_philo *philo);
-void						do_eat(t_philo *philo);
-// int						one_philo_case(t_philo *philo);
+void					do_eat(t_philo *philo);
 int						check_die(t_philo *philo);
 int						exit_dead_flag(t_philo *philo);
 uint64_t				get_elapsed_time(uint64_t start_time);
