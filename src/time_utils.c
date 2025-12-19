@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 18:57:49 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:56:57 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,20 +32,23 @@ uint64_t	get_millis_time(void)
 
 void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 {
-	uint64_t	start;
-	start = get_millis_time();
-	while (get_millis_time() - start < milliseconds)
+	uint64_t	start_sleep;
+
+	start_sleep = get_millis_time();
+	while (get_millis_time() - start_sleep < milliseconds)
 	{
 		if (exit_dead_flag(philo))
 			break ;
-		usleep(1000);
+		usleep(500);
 	}
 }
 
 uint64_t	get_elapsed_time(uint64_t start_time)
 {
-	uint64_t now = get_millis_time();
-	if (now < start_time)
-        return (0);
-	return (get_millis_time() - start_time);
+	uint64_t	now;
+
+	now = get_millis_time();
+	while (now < start_time)
+		return (0);
+	return (now - start_time);
 }

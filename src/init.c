@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 18:19:29 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:54:45 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,10 @@ int	alloc_all(t_all *all)
 
 void	init_mtx(t_all *all)
 {
-	pthread_mutex_init(&all->state_mtx, NULL);
+	// pthread_mutex_init(&all->ready_mtx, NULL);
 	pthread_mutex_init(&all->time_mtx, NULL);
 	pthread_mutex_init(&all->meal_mtx, NULL);
-	pthread_mutex_init(&all->dead_mtx, NULL);
-	pthread_mutex_init(&all->write_mtx, NULL);
+	pthread_mutex_init(&all->print_mtx, NULL);
 }
 
 int	init_all(t_all *all, int *args)
@@ -64,11 +63,13 @@ int	init_all(t_all *all, int *args)
 	t_philo	*ptr;
 	size_t	i;
 
+	// all->ready_count = 0;
 	all->philos_count = args[0];
 	alloc_all(all);
 	init_mtx(all);
 	ptr = all->philos;
 	all->dead_flag = false;
+	all->ph_finished = 0;
 	if (!args[4])
 		all->meal_stock = 0;
 	else

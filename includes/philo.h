@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 20:06:57 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:57:39 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef enum ph_action
 	FORK = 0,
 	EAT = 1,
 	SLEEP = 2,
-	THINK = 3,
+	THINK = 3
 }						t_ph_action;
 
 typedef struct s_philo
@@ -54,20 +54,18 @@ typedef struct s_all
 	bool				dead_flag;
 	size_t				philos_count;
 	size_t				meal_stock;
-	pthread_mutex_t		state_mtx;
+	size_t				ph_finished;
 	pthread_mutex_t		meal_mtx;
 	pthread_mutex_t		time_mtx;
-	pthread_mutex_t		dead_mtx;
-	pthread_mutex_t		write_mtx;
+	pthread_mutex_t		print_mtx;
 	pthread_t			monitor;
 	pthread_t			*ph_thread_pool;
 	pthread_mutex_t		*forks;
 	t_philo				*philos;
 }						t_all;
 
+void check_all_ph_started(t_philo *philo);
 void					print_die_time(t_philo *philo, uint64_t now);
-void					set_state(t_philo *philo, bool is_eating);
-void					set_dead_flag(t_philo *philo);
 void					set_time_last_meal(t_philo *philo);
 int						free_exit(t_all *all, int *args, int exit_status);
 int						increment_eaten_meal(t_philo *philo);

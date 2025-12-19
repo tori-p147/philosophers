@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 20:12:28 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:54:52 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,33 +16,21 @@ void	*do_monitoring(void *arg)
 {
 	t_all	*all;
 	size_t	i;
-	size_t	finished_ph_counter;
-	size_t	eaten;
 
 	all = (t_all *)arg;
+	usleep(all->philos[0].time_to_die / 2);
 	while (1)
 	{
-		finished_ph_counter = 0;
 		i = -1;
+		all->ph_finished = 0;
 		while (++i < all->philos_count)
 		{
-			pthread_mutex_lock(&all->meal_mtx);
-			eaten = all->philos[i].meal_eaten;
-			pthread_mutex_unlock(&all->meal_mtx);
-			if (all->meal_stock > 0 && eaten >= all->meal_stock)
-			{
-				finished_ph_counter++;
-				continue ;
-			}
 			if (check_die(&all->philos[i]))
-			{
-				set_dead_flag(&all->philos[i]);
-				print_die_time(&all->philos[i],
-					get_elapsed_time(all->philos[i].time_created));
 				return (NULL);
-			}
+			if (check_eaten_meal(&all->philos[i]))
+				all->ph_finished++;
 		}
-		if (finished_ph_counter >= all->philos_count)
+		if (all->ph_finished == all->philos_count)
 			return (NULL);
 	}
 	return (NULL);
@@ -51,7 +39,6 @@ void	*do_monitoring(void *arg)
 void	*do_action(void *arg)
 {
 	t_philo	*philo;
-	size_t	eaten;
 
 	philo = (t_philo *)arg;
 	if (philo->all->philos_count == 1)
@@ -59,19 +46,20 @@ void	*do_action(void *arg)
 		print_message(philo, get_elapsed_time(philo->time_created), FORK);
 		return (NULL);
 	}
+	if (philo->id % 2 == 0)
+		ft_usleep(philo->time_to_eat / 2, philo);
 	while (1)
 	{
 		if (exit_dead_flag(philo))
 			return (NULL);
-		if (!check_can_eat(philo))
-			continue ;
+		if (check_eaten_meal(philo))
+			return (NULL);
 		do_eat(philo);
-		pthread_mutex_lock(&philo->all->meal_mtx);
-		eaten = philo->meal_eaten;
-		pthread_mutex_unlock(&philo->all->meal_mtx);
-		if (philo->all->meal_stock > 0 && eaten >= philo->all->meal_stock)
+		if (exit_dead_flag(philo))
 			return (NULL);
 		do_sleep(philo);
+		if (exit_dead_flag(philo))
+			return (NULL);
 		do_think(philo);
 	}
 	return (NULL);
@@ -79,26 +67,16 @@ void	*do_action(void *arg)
 
 void	do_eat(t_philo *philo)
 {
-	set_state(philo, 1);
-	if (philo->id % 2 == 0)
-	{
-		pthread_mutex_lock(philo->lfork_mtx);
-		pthread_mutex_lock(philo->rfork_mtx);
-	}
-	else
-	{
-		pthread_mutex_lock(philo->rfork_mtx);
-		pthread_mutex_lock(philo->lfork_mtx);
-	}
+	pthread_mutex_lock(philo->lfork_mtx);
 	print_message(philo, get_elapsed_time(philo->time_created), FORK);
+	pthread_mutex_lock(philo->rfork_mtx);
 	print_message(philo, get_elapsed_time(philo->time_created), FORK);
-	print_message(philo, get_elapsed_time(philo->time_created), EAT);
 	set_time_last_meal(philo);
+	print_message(philo, get_elapsed_time(philo->time_created), EAT);
 	ft_usleep(philo->time_to_eat, philo);
 	increment_eaten_meal(philo);
-	set_state(philo, 0);
-	pthread_mutex_unlock(philo->rfork_mtx);
 	pthread_mutex_unlock(philo->lfork_mtx);
+	pthread_mutex_unlock(philo->rfork_mtx);
 }
 
 void	do_sleep(t_philo *philo)

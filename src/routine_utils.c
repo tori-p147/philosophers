@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 20:02:28 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:57:24 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,18 +27,19 @@ void	set_time_last_meal(t_philo *philo)
 	pthread_mutex_unlock(&philo->all->time_mtx);
 }
 
-void set_state(t_philo *philo, bool is_eating)
+int	check_eaten_meal(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->all->state_mtx);
-	philo->is_eating = is_eating;
-	pthread_mutex_unlock(&philo->all->state_mtx);
-}
-
-void	print_die_time(t_philo *philo, uint64_t now)
-{
-	pthread_mutex_lock(&philo->all->write_mtx);
-	printf("%lu %ld died\n", now, philo->id);
-	pthread_mutex_unlock(&philo->all->write_mtx);
+	if (exit_dead_flag(philo))
+		return (0);
+	pthread_mutex_lock(&philo->all->meal_mtx);
+	if (philo->all->meal_stock > 0 
+		&& philo->meal_eaten == philo->all->meal_stock)
+	{
+		pthread_mutex_unlock(&philo->all->meal_mtx);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->all->meal_mtx);
+	return (0);
 }
 
 void	print_message(t_philo *philo, uint64_t now, t_ph_action a)
@@ -46,9 +47,7 @@ void	print_message(t_philo *philo, uint64_t now, t_ph_action a)
 	char	*msg;
 
 	msg = "";
-	if (exit_dead_flag(philo))
-		return ;
-	else if (a == FORK)
+	if (a == FORK)
 		msg = "has taken a fork";
 	else if (a == EAT)
 		msg = "is eating";
@@ -56,7 +55,8 @@ void	print_message(t_philo *philo, uint64_t now, t_ph_action a)
 		msg = "is sleeping";
 	else if (a == THINK)
 		msg = "is thinking";
-	pthread_mutex_lock(&philo->all->write_mtx);
-	printf("%lu %ld %s\n", now, philo->id, msg);
-	pthread_mutex_unlock(&philo->all->write_mtx);
+	pthread_mutex_lock(&philo->all->print_mtx);
+	if (!philo->all->dead_flag)
+		printf("%lu %ld %s\n", now, philo->id, msg);
+	pthread_mutex_unlock(&philo->all->print_mtx);
 }

@@ -6,31 +6,23 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:23 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/16 16:10:26 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 16:45:14 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-// int	one_philo_case(t_philo *philo)
-// {
-// 	print_message(philo, get_elapsed_time(philo->time_created), FORK);
-// 	ft_usleep(philo->time_to_die, philo);
-// 	print_die_time(philo, get_elapsed_time(philo->time_created));
-// 	return (1);
-// }
-
 int	run_threads(t_all *all, int n)
 {
 	int			i;
-	// uint64_t	time_created;
+	uint64_t create_time;
 
 	i = -1;
-	// time_created = get_millis_time();
-	// if (all->philos_count == 1)
-	// 	return (one_philo_case(&all->philos[i]));
+	create_time = get_millis_time();
 	while (++i < n)
 	{
+		all->philos[i].time_created = create_time;
+		all->philos[i].time_last_meal = create_time;
 		pthread_create(&all->philos[i].thread, NULL, do_action,
 			&all->philos[i]);
 	}
