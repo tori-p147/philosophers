@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/21 19:03:11 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/21 21:54:01 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	check_eaten_meal(t_philo *philo)
 	return (0);
 }
 
-void	print_message(t_philo *philo, uint64_t now, t_ph_action a)
+void	print_message(t_philo *philo, t_ph_action a)
 {
 	char	*msg;
 
@@ -57,6 +57,7 @@ void	print_message(t_philo *philo, uint64_t now, t_ph_action a)
 		msg = "is thinking";
 	pthread_mutex_lock(&philo->all->print_mtx);
 	if (!philo->all->dead_flag)
-		printf("%lu %ld %s\n", now, philo->id, msg);
+		printf("%lu %ld %s\n", get_elapsed_time(philo->time_created), philo->id,
+			msg);
 	pthread_mutex_unlock(&philo->all->print_mtx);
 }

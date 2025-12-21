@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/21 18:58:11 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/21 21:55:16 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	*do_action(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->all->philos_count == 1)
 	{
-		print_message(philo, get_elapsed_time(philo->time_created), FORK);
+		print_message(philo, FORK);
 		return (NULL);
 	}
 	if (philo->id % 2 == 0)
@@ -66,12 +66,22 @@ void	*do_action(void *arg)
 
 void	do_eat(t_philo *philo)
 {
-	pthread_mutex_lock(philo->lfork_mtx);
-	print_message(philo, get_elapsed_time(philo->time_created), FORK);
-	pthread_mutex_lock(philo->rfork_mtx);
-	print_message(philo, get_elapsed_time(philo->time_created), FORK);
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock(philo->lfork_mtx);
+		print_message(philo, FORK);
+		pthread_mutex_lock(philo->rfork_mtx);
+		print_message(philo, FORK);
+	}
+	else
+	{
+		pthread_mutex_lock(philo->rfork_mtx);
+		print_message(philo, FORK);
+		pthread_mutex_lock(philo->lfork_mtx);
+		print_message(philo, FORK);
+	}
 	set_time_last_meal(philo);
-	print_message(philo, get_elapsed_time(philo->time_created), EAT);
+	print_message(philo, EAT);
 	ft_usleep(philo->time_to_eat, philo);
 	increment_eaten_meal(philo);
 	pthread_mutex_unlock(philo->lfork_mtx);
@@ -80,11 +90,11 @@ void	do_eat(t_philo *philo)
 
 void	do_sleep(t_philo *philo)
 {
-	print_message(philo, get_elapsed_time(philo->time_created), SLEEP);
+	print_message(philo, SLEEP);
 	ft_usleep(philo->time_to_sleep, philo);
 }
 
 void	do_think(t_philo *philo)
 {
-	print_message(philo, get_elapsed_time(philo->time_created), THINK);
+	print_message(philo, THINK);
 }
