@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:10 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/19 18:57:24 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/21 19:03:11 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ int	check_eaten_meal(t_philo *philo)
 	if (exit_dead_flag(philo))
 		return (0);
 	pthread_mutex_lock(&philo->all->meal_mtx);
-	if (philo->all->meal_stock > 0 
-		&& philo->meal_eaten == philo->all->meal_stock)
+	if (philo->all->meal_stock > 0
+		&& philo->meal_eaten >= philo->all->meal_stock)
 	{
 		pthread_mutex_unlock(&philo->all->meal_mtx);
 		return (1);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:11:43 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/19 18:57:39 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/21 19:00:59 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,13 @@ typedef struct s_all
 	t_philo				*philos;
 }						t_all;
 
-void check_all_ph_started(t_philo *philo);
+void					check_all_ph_started(t_philo *philo);
 void					print_die_time(t_philo *philo, uint64_t now);
 void					set_time_last_meal(t_philo *philo);
 int						free_exit(t_all *all, int *args, int exit_status);
 int						increment_eaten_meal(t_philo *philo);
 int						check_eaten_meal(t_philo *philo);
-void					print_message(t_philo *philo, uint64_t now,
-							t_ph_action a);
+void					print_message(t_philo *ph, uint64_t now, t_ph_action a);
 int						check_can_eat(t_philo *philo);
 void					do_sleep(t_philo *philo);
 void					do_think(t_philo *philo);

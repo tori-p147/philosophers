@@ -3,21 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   routine_case_checker.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 19:07:25 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/19 18:54:57 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/19 20:52:09 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-// void check_all_ph_started(t_philo *philo)
-// {
-// 	pthread_mutex_lock(&philo->all->ready_mtx);
-// 	philo->all->ready_count++;
-// 	pthread_mutex_unlock(&philo->all->ready_mtx);
-// }
 
 int	check_die(t_philo *philo)
 {
