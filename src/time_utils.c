@@ -6,7 +6,7 @@
 /*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 13:35:41 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/19 18:56:57 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/26 11:51:42 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	ft_usleep(uint64_t milliseconds, t_philo *philo)
 	start_sleep = get_millis_time();
 	while (get_millis_time() - start_sleep < milliseconds)
 	{
-		if (exit_dead_flag(philo))
+		if (check_exit_flags(philo))
 			break ;
 		usleep(500);
 	}

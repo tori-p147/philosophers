@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 16:13:29 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/21 19:02:17 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/26 13:23:47 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 int	init_philo(t_philo *philo, t_all *all, int *args)
 {
 	philo->meal_eaten = 0;
-	philo->is_eating = false;
+	philo->is_try_eating = false;
+	philo->is_finished = false;
 	philo->time_to_die = args[1];
 	philo->time_to_eat = args[2];
 	philo->time_created = get_millis_time();
@@ -52,7 +53,7 @@ int	alloc_all(t_all *all)
 
 void	init_mtx(t_all *all)
 {
-	pthread_mutex_init(&all->time_mtx, NULL);
+	pthread_mutex_init(&all->state_mtx, NULL);
 	pthread_mutex_init(&all->meal_mtx, NULL);
 	pthread_mutex_init(&all->print_mtx, NULL);
 }
@@ -67,6 +68,7 @@ int	init_all(t_all *all, int *args)
 	init_mtx(all);
 	ptr = all->philos;
 	all->dead_flag = false;
+	all->is_simulation_end = false;
 	all->ph_finished = 0;
 	if (!args[4])
 		all->meal_stock = 0;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine_do.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vmatsuda <vmatsuda@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: vmatsuda <vmatsuda@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 11:25:31 by vmatsuda          #+#    #+#             */
-/*   Updated: 2025/12/21 21:55:16 by vmatsuda         ###   ########.fr       */
+/*   Updated: 2025/12/26 13:58:21 by vmatsuda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,21 @@ void	*do_monitoring(void *arg)
 		all->ph_finished = 0;
 		while (++i < all->philos_count)
 		{
-			if (check_die(&all->philos[i]))
-				return (NULL);
-			if (check_eaten_meal(&all->philos[i]))
+			if (check_is_finished(&all->philos[i]))
 				all->ph_finished++;
+			else if (check_die(&all->philos[i]))
+				return (NULL);
 		}
 		if (all->ph_finished == all->philos_count)
+		{
+			pthread_mutex_lock(&all->state_mtx);
+			// printf("goal!!!\n");
+			all->is_simulation_end = 1;
+			pthread_mutex_unlock(&all->state_mtx);
 			return (NULL);
+		}
 	}
+	usleep(1000);
 	return (NULL);
 }
 
@@ -49,15 +56,13 @@ void	*do_action(void *arg)
 		ft_usleep(philo->time_to_eat / 2, philo);
 	while (1)
 	{
-		if (exit_dead_flag(philo))
-			return (NULL);
-		if (check_eaten_meal(philo))
+		if (check_exit_flags(philo))
 			return (NULL);
 		do_eat(philo);
-		if (exit_dead_flag(philo))
+		if (check_exit_flags(philo))
 			return (NULL);
 		do_sleep(philo);
-		if (exit_dead_flag(philo))
+		if (check_exit_flags(philo))
 			return (NULL);
 		do_think(philo);
 	}
@@ -70,6 +75,11 @@ void	do_eat(t_philo *philo)
 	{
 		pthread_mutex_lock(philo->lfork_mtx);
 		print_message(philo, FORK);
+		if (check_exit_flags(philo))
+		{
+			pthread_mutex_unlock(philo->lfork_mtx);
+			return ;
+		}
 		pthread_mutex_lock(philo->rfork_mtx);
 		print_message(philo, FORK);
 	}
@@ -84,6 +94,7 @@ void	do_eat(t_philo *philo)
 	print_message(philo, EAT);
 	ft_usleep(philo->time_to_eat, philo);
 	increment_eaten_meal(philo);
+	check_eaten_meals(philo);
 	pthread_mutex_unlock(philo->lfork_mtx);
 	pthread_mutex_unlock(philo->rfork_mtx);
 }
